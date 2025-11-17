@@ -41,7 +41,7 @@ class _SinginPageState extends State<SinginPage> {
           ),
         ),
       );
-      return; 
+      return;
     }
 
     try {
@@ -52,36 +52,40 @@ class _SinginPageState extends State<SinginPage> {
       );
 
       final data = jsonDecode(response.body);
-      
+
       if (response.statusCode == 200 && data['message'] == 'success') {
+
+
+
+        
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Login successful!',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
+          SnackBar(
+            content: const Text(
+              'Login successful!',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-        await Future.delayed(const Duration(seconds: 1));
-
-        final role = data['user']['role'];
-        if (role == 1) {
-          Navigator.pushReplacementNamed(context, '/Admin');
-        } else if (role == 2) {
-          Navigator.pushReplacementNamed(context, '/Teacher');
-        } else if (role == 3) {
-          Navigator.pushReplacementNamed(context, '/Student');
+        );  
+         await Future.delayed(const Duration(seconds: 1));
+        if (data['user']['id_role'] == 1) {
+          Navigator.pushNamed(context, '/Admin');
+        } else if (data['user']['id_role'] == 2) {
+          Navigator.pushNamed(context, '/Teacher');
+        } else if (data['user']['id_role'] == 3) {
+          Navigator.pushNamed(context, '/Student');
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
+
+     
+      }else{
+         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               data['message'] ?? 'Invalid email or password',
@@ -97,9 +101,9 @@ class _SinginPageState extends State<SinginPage> {
             ),
           ),
         );
-      }
+      } 
     } catch (e) {
-     ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
             'problem with server',
@@ -189,48 +193,45 @@ class _SinginPageState extends State<SinginPage> {
 
                   SizedBox(height: size.height * 0.08),
 
-                   BuildInputField(
-                      hintText: 'Email',
-                      controller: emailController,
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
+                  BuildInputField(
+                    hintText: 'Email',
+                    controller: emailController,
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
 
-                  
-                   const SizedBox(height: 20),
-                    BuildInputField(
-                      hintText: 'Password',
-                      controller: passwordController,
-                      icon: Icons.lock_outline,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                   
+                  const SizedBox(height: 20),
+                  BuildInputField(
+                    hintText: 'Password',
+                    controller: passwordController,
+                    icon: Icons.lock_outline,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+
                   const SizedBox(height: 12),
 
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
-                       
-                      },
+                      onPressed: () {},
                       child: Text(
                         'Forgot Password?',
                         style: TextStyle(
@@ -244,9 +245,7 @@ class _SinginPageState extends State<SinginPage> {
 
                   const SizedBox(height: 32),
 
-
                   Bottom(
-
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         await login(
