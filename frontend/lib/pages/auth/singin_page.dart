@@ -54,10 +54,6 @@ class _SinginPageState extends State<SinginPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['message'] == 'success') {
-
-
-
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
@@ -73,8 +69,10 @@ class _SinginPageState extends State<SinginPage> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-        );  
-         await Future.delayed(const Duration(seconds: 1));
+        );
+        await Future.delayed(const Duration(seconds: 3));
+
+
         if (data['user']['id_role'] == 1) {
           Navigator.pushNamed(context, '/Admin');
         } else if (data['user']['id_role'] == 2) {
@@ -82,10 +80,8 @@ class _SinginPageState extends State<SinginPage> {
         } else if (data['user']['id_role'] == 3) {
           Navigator.pushNamed(context, '/Student');
         }
-
-     
-      }else{
-         ScaffoldMessenger.of(context).showSnackBar(
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               data['message'] ?? 'Invalid email or password',
@@ -101,7 +97,7 @@ class _SinginPageState extends State<SinginPage> {
             ),
           ),
         );
-      } 
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

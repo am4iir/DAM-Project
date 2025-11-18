@@ -20,12 +20,12 @@ class MainApp extends StatelessWidget {
       title: 'Canvas',
     theme: ThemeData(
     colorScheme: ColorScheme(
-      brightness: Brightness.dark, // Dark mode
-      primary: Color(0xFF4B0082),   // Dark purple
+      brightness: Brightness.light,  // Dark mode
+      primary: Color.fromARGB(255, 14, 14, 15),   // Dark 
       onPrimary: Colors.white,      // Text/icons on primary
       secondary: Color(0xFF6A0DAD), // Slightly lighter purple
       onSecondary: Colors.white,    // Text/icons on secondary
-      background: Colors.grey[300], // Almost black background
+      background: Colors.grey[200], // Almost black background
       onBackground: Colors.white,   // Text on background
       surface: Colors.white,  // Card and button surfaces
       onSurface: Colors.white,      // Text on surfaces
