@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:frontend/component/widget/_buildInputField.dart';
+import 'package:frontend/widgets/widget/_buildInputField.dart';
 import 'dart:convert';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class SingupPage extends StatefulWidget {
   const SingupPage({super.key});
 
@@ -15,6 +15,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
+  final studentIdController = TextEditingController();
   bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -37,6 +38,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
     emailController.dispose();
     passwordController.dispose();
     nameController.dispose();
+    studentIdController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -46,12 +48,14 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
       setState(() => _isLoading = true);
       
       final data = await singup(nameController.text, emailController.text, passwordController.text);
-      await Future.delayed(const Duration(seconds: 1));
       
       if (mounted) {
         setState(() => _isLoading = false);
         
         if (data != null && data["message"] == "User created successfully") {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('email', emailController.text);
+          prefs.setString('username', nameController.text);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Account created successfully!'),
@@ -137,90 +141,77 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 20),
+
+               
                     Container(
+                      height: MediaQuery.of(context).size.height * 0.35,
                       alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            duration: const Duration(milliseconds: 600),
-                            builder: (context, value, child) {
-                              return Transform.scale(
-                                scale: value,
-                                child: Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 10),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.menu_book_sharp,
-                                    color: Theme.of(context).colorScheme.onPrimary,
-                                    size: 40,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'canvus',
-                            style: TextStyle(
-                              fontSize: 42,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'create your account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
+                      child: Image.asset(
+                        'assets/undraw_undraw_undraw_undraw_sign_up_ln1s_-1-_s4bc_-1-_ee41_-1-_kf4d 1.png',
+                        height: 200,
+                        
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.person_add,
+                            size: 200,
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(height: 50),
+
+                    const SizedBox(height: 24),
+
+                    // Greeting Text
+                    Text(
+                      'Hello, Sign Up to start using our app',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+
+                    
                     BuildInputField(
-                      hintText: 'Username',
-                      controller: nameController,
-                      icon: Icons.person_outline,
-                      keyboardType: TextInputType.name,
+                      hintText: 'Email',
+                      controller: emailController,
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.text,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your username';
+                          return 'Please enter your email or phone number';
                         }
-                        if (value.length < 3) {
-                          return 'Username must be at least 3 characters';
+                        // Check if it's an email
+                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                        // Check if it's a phone number (at least 8 digits)
+                        final phoneRegex = RegExp(r'^[0-9]{8,15}$');
+                        final cleanValue = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+                        
+                        if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(cleanValue)) {
+                          return 'Please enter a valid email or phone number';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
                     BuildInputField(
-                      hintText: 'Email',
-                      controller: emailController,
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
+                      hintText: 'Full name',
+                      controller: nameController,
+                      icon: Icons.person,
+                      keyboardType: TextInputType.text,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return 'Please enter your full name';
                         }
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return 'Please enter a valid email';
+                        if (value.length < 6) {
+                          return 'full name must be at least 6 characters';
                         }
                         return null;
                       },
@@ -282,23 +273,23 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Already have an account? ',
+                          'Have an account? ',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pushReplacementNamed(context, '/singin');
                           },
                           child: Text(
                             'Login',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.primary,
-                              fontSize: 14,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              
                             ),
                           ),
                         ),

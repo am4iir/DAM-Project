@@ -19,29 +19,90 @@ class MainApp extends StatelessWidget {
     return  MaterialApp(
       title: 'Canvas',
     theme: ThemeData(
-    colorScheme: ColorScheme(
-      brightness: Brightness.light,  // Dark mode
-      primary: Color.fromARGB(255, 14, 14, 15),   // Dark 
-      onPrimary: Colors.white,      // Text/icons on primary
-      secondary: Color(0xFF6A0DAD), // Slightly lighter purple
-      onSecondary: Colors.white,    // Text/icons on secondary
-      background: Colors.grey[200], // Almost black background
-      onBackground: Colors.white,   // Text on background
-      surface: Colors.white,  // Card and button surfaces
-      onSurface: Colors.white,      // Text on surfaces
-      error: Colors.redAccent,
-      onError: Colors.white,
-    ),
+    colorScheme: const ColorScheme(
+      brightness: Brightness.light,
+    
+      primary: Color(0xFF00A8B5),     
+      onPrimary: Color(0xFFFFFFFF),     
+      
+     
+      secondary: Color(0xFF7B68EE),     
+      onSecondary: Color(0xFFFFFFFF),
+      
+  
+      background: Color(0xFFF5F7FA),    
+      onBackground: Color(0xFF1A1A1A),    // أسود ناعم للقراءة
+      
+      // Surface - أبيض نقي للكروت
+      surface: Color(0xFFFFFFFF),        // أبيض نقي
+      onSurface: Color(0xFF2C2C2C),      // رمادي داكن للخطوط
+      
+      // Error
+      error: Color(0xFFE57373),          // أحمر ناعم
+      onError: Color(0xFFFFFFFF),
+      
+      // Surface Variant - للعناصر الثانوية
+      surfaceVariant: Color(0xFFF0F4F8),
+      onSurfaceVariant: Color(0xFF5A5A5A), 
+      
+      // Outline
+      outline: Color(0xFFE0E0E0),      
+    ), // رمادي فاتح جداً
     useMaterial3: true,
+    
+    
+    textTheme: const TextTheme(
+      displayLarge: TextStyle(
+        color: Color(0xFF1A1A1A),
+        fontWeight: FontWeight.bold,
+      ),
+      displayMedium: TextStyle(
+        color: Color(0xFF1A1A1A),
+        fontWeight: FontWeight.bold,
+      ),
+      displaySmall: TextStyle(
+        color: Color(0xFF1A1A1A),
+        fontWeight: FontWeight.bold,
+      ),
+      headlineMedium: TextStyle(
+        color: Color(0xFF2C2C2C),
+        fontWeight: FontWeight.w600,
+      ),
+      titleLarge: TextStyle(
+        color: Color(0xFF2C2C2C),
+        fontWeight: FontWeight.w600,
+      ),
+      bodyLarge: TextStyle(
+        color: Color(0xFF2C2C2C),
+        fontWeight: FontWeight.normal,
+      ),
+      bodyMedium: TextStyle(
+        color: Color(0xFF5A5A5A),
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+    
+    // تحسين الكروت
+    cardTheme: CardThemeData(
+      color: const Color(0xFFFFFFFF),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: const Color(0xFFE0E0E0).withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+    ),
   ),
 
       routes: {
-        '/singin':(context) => SinginPage(),
-        '/signup':(context) => SingupPage(),
-        '/Admin':(context) => Admin(),
-        '/Teacher':(context) => Teacher(),
-        '/Student':(context) => Student(),
-
+        '/singin':(context) =>  SinginPage(),
+        '/signup':(context) =>  SingupPage(),
+        '/Admin':(context) =>  Admin(),
+        '/Teacher':(context) =>  Teacher(),
+        '/Student':(context) =>  Student(),
       },
       debugShowCheckedModeBanner: false,
       home: Scaffold(

@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const router = express.Router();
 const pool = require("../config/db");
 
@@ -13,7 +14,14 @@ router.post("/signin", (req, res) => {
     .then((result) => {
       const userFromDB = result.rows[0];
       if (userFromDB && userFromDB.password_hash === user.password) {
-        res.send({ message: "success", user: userFromDB, status: 200 });
+        
+        const token = jwt.sign(
+          { id: userFromDB.id, email: userFromDB.email, id_role: userFromDB.id_role },
+          process.env.JWT_SECRET,
+          { expiresIn: "100h" }
+        );
+        
+        res.send({ message: "success", user: userFromDB, token: token, status: 200 });
       } else {
         res.send({ message: "Invalid credentials", status: 400 });
       }

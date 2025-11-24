@@ -13,7 +13,7 @@ pool.on('connect',()=>{
     console.log('connected to the database');
 })
 pool.on('error', (err) => {
-  console.error('❌ PostgreSQL client error:', err.stack);
+  console.error(' PostgreSQL client error:', err.stack);
 });
 
 

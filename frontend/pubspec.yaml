@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
   get: ^4.7.2
   http: ^1.1.0
-  toastification: ^1.2.1
   google_nav_bar: ^5.0.6
+  shared_preferences: ^2.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -28,5 +28,5 @@ flutter_launcher_icons:
   android: true
   ios: true
   adaptive_icon_background: "#ffffff" 
-  image_path: "assets/logo.png"
-  background_color: "#ffffff"  # 👈 change this to any color you want
+  image_path: "assets/log.png"
+  background_color: "#ffffff"  

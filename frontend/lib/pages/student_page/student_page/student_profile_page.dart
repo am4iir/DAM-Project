@@ -1,9 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/component/widget/_buildInFoRow.dart';
+import 'package:frontend/widgets/widget/_buildInFoRow.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-class StudentProfilePage extends StatelessWidget {
+class StudentProfilePage extends StatefulWidget {
   const StudentProfilePage({super.key});
+
+  @override
+  State<StudentProfilePage> createState() => _StudentProfilePageState();
+}
+
+class _StudentProfilePageState extends State<StudentProfilePage> {
+  String? userName;
+  String? email;
+
+  void getUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return; // <-- check if widget is still in the tree
+    setState(() {
+      userName = prefs.getString('username');
+      email = prefs.getString('email');
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUserName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +79,7 @@ class StudentProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'amir abada',
+                    userName ?? 'Loading...',
                     style: TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
@@ -66,7 +89,7 @@ class StudentProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'amir.abada@gmail.com',
+                    email ?? 'Loading...',
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(
@@ -100,37 +123,28 @@ class StudentProfilePage extends StatelessWidget {
                       context: context,
                       icon: Icons.person_outline,
                       label: 'Full Name',
-                      value: 'amir abada',
+                      value: userName ?? 'Loading...',
                     ),
                     SizedBox(height: 20),
-                    Divider(
-                      height: 2,
-                 
-                    ),
+                    Divider(height: 2),
                     SizedBox(height: 20),
                     BuildInFoRow(
                       context: context,
                       icon: Icons.email_outlined,
                       label: 'Email',
-                      value: 'amir.abada@gmail.com',
+                      value: email ?? 'Loading...',
                     ),
                     SizedBox(height: 20),
-                    Divider(
-                      height: 2,
-                     
-                    ),
+                    Divider(height: 2),
                     SizedBox(height: 20),
                     BuildInFoRow(
                       context: context,
-                      icon: Icons.badge_outlined,
-                      label: 'Role',
-                      value: 'Student',
+                      icon: Icons.school_outlined,
+                      label: 'university',
+                      value: 'College of Computer Science ',
                     ),
                     SizedBox(height: 20),
-                    Divider(
-                      height: 2,
-                     
-                    ),
+                    Divider(height: 2),
                     SizedBox(height: 20),
                     BuildInFoRow(
                       context: context,
@@ -179,7 +193,12 @@ class StudentProfilePage extends StatelessWidget {
                             child: Text('cancel'),
                           ),
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              
+                              final prefs = await SharedPreferences.getInstance();
+                              prefs.remove('token');
+                              prefs.remove('username');
+                              prefs.remove('email');
                               Navigator.pushReplacementNamed(
                                 context,
                                 '/singin',
@@ -222,5 +241,4 @@ class StudentProfilePage extends StatelessWidget {
       ),
     );
   }
-
 }

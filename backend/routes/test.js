@@ -11,7 +11,7 @@ const pool = require('../config/db');
       users: result.rows
     });
   } catch (err) {
-    console.error("❌ Database error:", err.message);
+    console.error(" Database error:", err.message);
     res.status(500).json({ success: false, message: "Failed to fetch users" });
   }
 });
