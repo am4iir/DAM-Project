@@ -74,7 +74,6 @@ class _SolashScreenState extends State<SolashScreen>
                     child: Image.asset('assets/log.png'), 
                     
                   ),
-                   
                  
                   // App name
                   Text(

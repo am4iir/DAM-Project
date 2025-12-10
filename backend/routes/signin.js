@@ -2,34 +2,71 @@ const express = require("express");
 require("dotenv").config();
 const router = express.Router();
 const pool = require("../config/db");
-
 const jwt = require("jsonwebtoken");
 
-router.post("/signin", (req, res) => {
-  const user = req.body;
+// ----------------------------
+//      SIGN IN ROUTE
+// ----------------------------
+router.post("/signin", async (req, res) => {
+  const { email, password } = req.body;
 
-  const queryText = `SELECT * FROM "users" WHERE email = $1;`;
-  pool
-    .query(queryText, [user.email])
-    .then((result) => {
-      const userFromDB = result.rows[0];
-      if (userFromDB && userFromDB.password_hash === user.password) {
-        
-        const token = jwt.sign(
-          { id: userFromDB.id, email: userFromDB.email, id_role: userFromDB.id_role },
-          process.env.JWT_SECRET,
-          { expiresIn: "100h" }
-        );
-        
-        res.send({ message: "success", user: userFromDB, token: token, status: 200 });
-      } else {
-        res.send({ message: "Invalid credentials", status: 400 });
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      res.send({ message: "Database error", status: 500 });
+  try {
+    // 1. Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+        error: "MISSING_FIELDS",
+      });
+    }
+
+    // 2. Find user by email
+    const queryText = `SELECT * FROM users WHERE email = $1 LIMIT 1`;
+    const result = await pool.query(queryText, [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+        error: "USER_NOT_FOUND",
+      });
+    }
+
+    const user = result.rows[0];
+
+    // 3. Check password (plain text comparison for now)
+    if (user.password_hash !== password) {
+      return res.status(401).json({
+        message: "Incorrect password",
+        error: "WRONG_PASSWORD",
+      });
+    }
+
+    // 4. Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        id_role: user.id_role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "100h" }
+    );
+
+    // 5. Remove sensitive info (password)
+    const { password_hash, ...safeUser } = user;
+
+    // 6. Return success
+    res.status(200).json({
+      message: "success",
+      user: safeUser,
+      token: token,
     });
+  } catch (error) {
+    console.error("Signin error:", error);
+    res.status(500).json({
+      message: "Database error",
+      error: "DATABASE_ERROR",
+    });
+  }
 });
 
 module.exports = router;

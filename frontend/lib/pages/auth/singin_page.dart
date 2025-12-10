@@ -32,7 +32,6 @@ class _SinginPageState extends State<SinginPage> {
     super.dispose();
   }
 
-
   void verifyToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -61,20 +60,17 @@ class _SinginPageState extends State<SinginPage> {
         if (data['user']['email'] != null) {
           prefs.setString('email', data['user']['email']);
         }
-        
+
         final roleId = data['user']['id-role'] ?? data['user']['id_role'];
-        if(roleId == 1){
+        if (roleId == 1) {
           Navigator.pushReplacementNamed(context, '/Admin');
-        } else if(roleId == 2){
+        } else if (roleId == 2) {
           Navigator.pushReplacementNamed(context, '/Teacher');
-        } else if(roleId == 3){
+        } else if (roleId == 3) {
           Navigator.pushReplacementNamed(context, '/Student');
         }
-
-      
       }
     } catch (e) {
-    
       prefs.remove('token');
       prefs.remove('username');
       prefs.remove('email');
@@ -82,7 +78,6 @@ class _SinginPageState extends State<SinginPage> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
@@ -142,11 +137,11 @@ class _SinginPageState extends State<SinginPage> {
         );
         // Check role - use both 'id-role' and 'id_role' for compatibility
         final roleId = data['user']['id-role'] ?? data['user']['id_role'];
-        if(roleId == 1){
+        if (roleId == 1) {
           Navigator.pushReplacementNamed(context, '/Admin');
-        } else if(roleId == 2){
+        } else if (roleId == 2) {
           Navigator.pushReplacementNamed(context, '/Teacher');
-        } else if(roleId == 3){
+        } else if (roleId == 3) {
           Navigator.pushReplacementNamed(context, '/Student');
         }
       } else {
@@ -189,7 +184,6 @@ class _SinginPageState extends State<SinginPage> {
     }
   }
 
-  
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -200,189 +194,170 @@ class _SinginPageState extends State<SinginPage> {
           backgroundColor: Theme.of(context).colorScheme.background,
           body: SafeArea(
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 20),
-                      // Illustration Section
-                      Container(
-                        height: size.height * 0.35,
-                        alignment: Alignment.center,
-                        child: Image.asset(
-                          'assets/undraw_access_account_re_8spm (1) 1.png',
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: 300,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.account_circle,
-                              size: 200,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.3),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Hello, Login to continue using our app',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      SizedBox(height: size.height * 0.05),
-                      BuildInputField(
-                        hintText: 'Enter your email',
-                        controller: emailController,
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.text,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email or phone number';
-                          }
-                          final emailRegex =
-                              RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                          final phoneRegex = RegExp(r'^[0-9]{8,15}$');
-                          final cleanValue =
-                              value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-                          if (!emailRegex.hasMatch(value) &&
-                              !phoneRegex.hasMatch(cleanValue)) {
-                            return 'Please enter a valid email or phone number';
-                          }
-                          return null;
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
+                    // Illustration Section
+                    Container(
+                      height: size.height * 0.35,
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'assets/undraw_access_account_re_8spm (1) 1.png',
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: 300,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.account_circle,
+                            size: 200,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.3),
+                          );
                         },
                       ),
-                      const SizedBox(height: 20),
-                      BuildInputField(
-                        hintText: 'Password',
-                        controller: passwordController,
-                        icon: Icons.lock_outline,
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Hello, Login to continue using our app',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                      const SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onBackground
-                                    .withOpacity(0.8),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                    ),
+                    SizedBox(height: size.height * 0.05),
+                    BuildInputField(
+                      hintText: 'Enter your email',
+                      controller: emailController,
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                   
+                    
+                    const SizedBox(height: 20),
+                    BuildInputField(
+                      hintText: 'Password',
+                      controller: passwordController,
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 32),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: ElevatedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                if (_formKey.currentState!.validate()) {
+                                  await login(
+                                    emailController.text,
+                                    passwordController.text,
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          elevation: 4,
+                          shadowColor: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.4),
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : () async {
-                            if (_formKey.currentState!.validate()) {
-                              await login(
-                                emailController.text,
-                                passwordController.text,
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 4,
-                            shadowColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                          ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                )
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
+                        child: _isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account? ",
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground
-                                  .withOpacity(0.8),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(context, '/signup');
-                            },
-                            child: Text(
-                              'Sign Up',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                              )
+                            : const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                ),
                               ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account? ",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onBackground.withOpacity(0.8),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/signup');
+                          },
+                          child: Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: size.height * 0.05),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: size.height * 0.05),
+                  ],
                 ),
               ),
             ),
           ),
+        ),
         if (_isLoading)
           Container(
             color: Colors.black38,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
       ],
     );
