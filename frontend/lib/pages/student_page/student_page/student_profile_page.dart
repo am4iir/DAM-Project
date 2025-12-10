@@ -35,7 +35,8 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        
+        automaticallyImplyLeading: false,
+
         title: Text(
           'Profile',
           style: TextStyle(

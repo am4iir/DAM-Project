@@ -6,6 +6,7 @@ import 'package:frontend/pages/splash_screen.dart';
 import 'package:frontend/pages/student_page/student_main.dart';
 import 'package:frontend/pages/teacher_page/teacher_main.dart';
 import 'package:frontend/pages/test.dart';
+import 'package:frontend/pages/waiting_page.dart';
 
 void main() {
   runApp( MainApp());
@@ -103,6 +104,7 @@ class MainApp extends StatelessWidget {
         '/Admin':(context) =>  Admin(),
         '/Teacher':(context) =>  Teacher(),
         '/Student':(context) =>  Student(),
+        '/waiting':(context) =>  WaitingPage(),
       },
       debugShowCheckedModeBanner: false,
       home: Scaffold(
