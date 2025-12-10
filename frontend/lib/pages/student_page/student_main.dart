@@ -39,6 +39,7 @@ class _StudentState extends State<Student> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: Container(
+            height: 70,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               border: Border.all(
@@ -56,17 +57,17 @@ class _StudentState extends State<Student> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: GNav(
-              tabMargin: const EdgeInsets.all(5),
+             
               rippleColor: Colors.grey.shade300,
               hoverColor: Colors.black,
-              gap: 12,
-              activeColor: Colors.black,
-              color:Colors.black,
+              gap: 8,
+              activeColor: Theme.of(context).colorScheme.onBackground,
+              color:Colors.black87,
               iconSize: 24,
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               tabBackgroundColor:Colors.grey.shade300,
               tabActiveBorder: Border.all(
-                color: theme.colorScheme.onBackground,
+                color: Colors.grey.shade300,
                 width: 2,
               ),
             

@@ -131,8 +131,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
+        child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Form(
               key: _formKey,
@@ -145,11 +144,11 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
 
                
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.35,
+                      height: MediaQuery.of(context).size.height * 0.32,
                       alignment: Alignment.center,
                       child: Image.asset(
                         'assets/undraw_undraw_undraw_undraw_sign_up_ln1s_-1-_s4bc_-1-_ee41_-1-_kf4d 1.png',
-                        height: 200,
+                        height: 180,
                         
                         fit: BoxFit.contain,
                         width: double.infinity,
@@ -268,7 +267,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
                               ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -302,7 +301,6 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

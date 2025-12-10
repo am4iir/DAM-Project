@@ -16,15 +16,15 @@ class BuildInFoRow extends StatelessWidget {
           height: 50,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
             border: Border.all(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
               width: 1,
             ),
           ),
           child: Icon(
             icon,
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.onBackground,
             size: 24,
           ),
         ),
@@ -37,7 +37,7 @@ class BuildInFoRow extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -47,7 +47,8 @@ class BuildInFoRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onBackground
+                  ,
                 ),
               ),
             ],

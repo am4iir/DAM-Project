@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/widget/bottom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:frontend/widgets/widget/_buildInputField.dart';
@@ -21,7 +20,6 @@ class _SinginPageState extends State<SinginPage> {
   @override
   void initState() {
     super.initState();
-    // Run token verification after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       verifyToken();
     });
@@ -63,7 +61,7 @@ class _SinginPageState extends State<SinginPage> {
         if (data['user']['email'] != null) {
           prefs.setString('email', data['user']['email']);
         }
-        // Check role - use both 'id-role' and 'id_role' for compatibility
+        
         final roleId = data['user']['id-role'] ?? data['user']['id_role'];
         if(roleId == 1){
           Navigator.pushReplacementNamed(context, '/Admin');
@@ -201,8 +199,7 @@ class _SinginPageState extends State<SinginPage> {
         Scaffold(
           backgroundColor: Theme.of(context).colorScheme.background,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
+            child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Form(
                   key: _formKey,
@@ -218,6 +215,7 @@ class _SinginPageState extends State<SinginPage> {
                           'assets/undraw_access_account_re_8spm (1) 1.png',
                           fit: BoxFit.contain,
                           width: double.infinity,
+                          height: 300,
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(
                               Icons.account_circle,
@@ -300,15 +298,47 @@ class _SinginPageState extends State<SinginPage> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      Bottom(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await login(
-                              emailController.text,
-                              passwordController.text,
-                            );
-                          }
-                        },
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : () async {
+                            if (_formKey.currentState!.validate()) {
+                              await login(
+                                emailController.text,
+                                passwordController.text,
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                            shadowColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                          ),
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Row(
@@ -347,7 +377,6 @@ class _SinginPageState extends State<SinginPage> {
               ),
             ),
           ),
-        ),
         if (_isLoading)
           Container(
             color: Colors.black38,

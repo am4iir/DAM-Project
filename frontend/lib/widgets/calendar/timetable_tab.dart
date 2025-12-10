@@ -9,9 +9,9 @@ class TimetableTab extends StatefulWidget {
 }
 
 class _TimetableTabState extends State<TimetableTab> {
-  String _selectedDay = 'Monday';
+  String _selectedDay = 'Sunday';
 
-  final List<String> _days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  final List<String> _days = ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday'];
 
   @override
   Widget build(BuildContext context) {
@@ -91,48 +91,41 @@ class _TimetableTabState extends State<TimetableTab> {
           Column(
             children: [
               TimetableItem(
-                startTime: '9:00am',
-                endTime: '9:50am',
+                startTime: '8:30am',
+                endTime: '10:00am',
                 title: 'Mathematics',
                 subtitle: 'by ken Shakumar',
-                color: Colors.purple[100]!,
+                color:Colors.blue[100]!,
               ),
               TimetableItem(
                 startTime: '10:00am',
-                endTime: '10:50am',
+                endTime: '11:30am',
                 title: 'Mathematics',
                 subtitle: 'by ken Shakumar',
-                color: Colors.orange[100]!,
-              ),
-              TimetableItem(
-                startTime: '10:50am',
-                endTime: '11:05am',
-                title: 'Morning Break',
                 color: Colors.blue[100]!,
-                isBreak: true,
-                isHighlighted: true,
               ),
               TimetableItem(
-                startTime: '11:05am',
-                endTime: '11:54am',
+                startTime: '11:30pm',
+                endTime: '13:00pm',
                 title: 'Mathematics',
                 subtitle: 'by ken Shakumar',
-                color: Colors.yellow[100]!,
+                color: Colors.blue[100]!,
               ),
               TimetableItem(
-                startTime: '12:00pm',
-                endTime: '12:50pm',
+                startTime: '13:00am',
+                endTime: '14:30am',
                 title: 'Mathematics',
                 subtitle: 'by ken Shakumar',
-                color: Colors.purple[100]!,
+                color: Colors.blue[100]!,
               ),
               TimetableItem(
-                startTime: '12:50pm',
-                endTime: '1:40pm',
+                startTime: '14:30pm',
+                endTime: '16:00pm',
                 title: 'Mathematics',
                 subtitle: 'by ken Shakumar',
-                color: Colors.grey[300]!,
+                color :Colors.blue[100]!,
               ),
+           
             ],
           ),
         ],
