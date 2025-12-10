@@ -15,7 +15,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
   void getUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!mounted) return; // <-- check if widget is still in the tree
+    if (!mounted) return;
     setState(() {
       userName = prefs.getString('username');
       email = prefs.getString('email');
@@ -32,212 +32,263 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        
+        title: Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: Text(
-                      ' Profile ',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 40),
-              Column(
+              const SizedBox(height: 20),
+              // Profile Picture Section
+              Stack(
                 children: [
                   Container(
-                    width: 90,
-                    height: 90,
+                    width: 120,
+                    height: 120,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
                       shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                        ],
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.3),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.person,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 40,
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    userName ?? 'Loading...',
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    email ?? 'Loading...',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.6),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
+                  
                 ],
               ),
-              SizedBox(height: 40),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
+              const SizedBox(height: 24),
+              Text(
+                userName ?? 'Loading...',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
-                margin: EdgeInsets.symmetric(horizontal: 25),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                email ?? 'Loading...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 40),
+              // Information Cards
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BuildInFoRow(
-                      context: context,
+                    _buildInfoCard(
+                      context,
                       icon: Icons.person_outline,
                       label: 'Full Name',
                       value: userName ?? 'Loading...',
                     ),
-                    SizedBox(height: 20),
-                    Divider(height: 2),
-                    SizedBox(height: 20),
-                    BuildInFoRow(
-                      context: context,
+                    const SizedBox(height: 16),
+                    _buildInfoCard(
+                      context,
                       icon: Icons.email_outlined,
                       label: 'Email',
                       value: email ?? 'Loading...',
                     ),
-                    SizedBox(height: 20),
-                    Divider(height: 2),
-                    SizedBox(height: 20),
-                    BuildInFoRow(
-                      context: context,
+                    const SizedBox(height: 16),
+                    _buildInfoCard(
+                      context,
                       icon: Icons.school_outlined,
-                      label: 'university',
-                      value: 'College of Computer Science ',
+                      label: 'University',
+                      value: 'College of Computer Science',
                     ),
-                    SizedBox(height: 20),
-                    Divider(height: 2),
-                    SizedBox(height: 20),
-                    BuildInFoRow(
-                      context: context,
-                      icon: Icons.group_outlined,
+                    const SizedBox(height: 16),
+                    _buildInfoCard(
+                      context,
+                      icon: Icons.groups_outlined,
                       label: 'Group',
                       value: 'Group A',
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 30),
-              Container(
-                height: 50,
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 25),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.white,
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(
-                          'log out',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+              const SizedBox(height: 30),
+              // Logout Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ),
-                        content: Text(
-                          'are you sure you want to log out?',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text('cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              
-                              final prefs = await SharedPreferences.getInstance();
-                              prefs.remove('token');
-                              prefs.remove('username');
-                              prefs.remove('email');
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/singin',
-                              );
-                            },
-                            child: Text(
-                              'log out',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
+                          title: Text(
+                            'Log Out',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
+                          content: Text(
+                            'Are you sure you want to log out?',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontSize: 16,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                final prefs = await SharedPreferences.getInstance();
+                                prefs.remove('token');
+                                prefs.remove('username');
+                                prefs.remove('email');
+                                Navigator.pushReplacementNamed(context, '/singin');
+                              },
+                              child: Text(
+                                'Log Out',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    );
-                  },
-                  child: Text(
-                    'log out',
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      elevation: 0,
                     ),
-                  ),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Theme.of(context).colorScheme.error,
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                    child: const Text(
+                      'Log Out',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onBackground,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

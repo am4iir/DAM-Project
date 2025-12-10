@@ -54,7 +54,7 @@ class AppColors {
 
 /// Helper methods للحصول على ألوان من الـ theme
 extension AppColorScheme on ColorScheme {
-  Color get pastelPrimary => primary.withOpacity(0.15);
+  Color get pastelPrimary => primary.withValues(alpha: 0.15);
   Color get pastelSecondary => secondary.withOpacity(0.15);
   
   Color get textOnSurface => onSurface;
