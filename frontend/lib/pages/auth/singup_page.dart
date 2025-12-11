@@ -66,7 +66,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
               ),
             ),
           );
-          Navigator.pushReplacementNamed(context, '/Student');
+          Navigator.pushNamed(context, '/waiting');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

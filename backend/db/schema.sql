@@ -12,7 +12,7 @@ CREATE TABLE roles (
   role_name VARCHAR(50) NOT NULL
 );
 /*
-username = amir@univ-constantine
-password = jhfjfjedieeh
+username =	ilyes.cherif@student.univ-constantine2.dz
+password = ilyesPass77
 user are accept 
 */

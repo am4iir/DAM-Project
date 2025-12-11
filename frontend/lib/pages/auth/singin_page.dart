@@ -15,7 +15,8 @@ class _SinginPageState extends State<SinginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false; // Loading indicator
+  bool _isLoading = false;
+  bool _isAccepted = false; // Loading indicator
 
   @override
   void initState() {
@@ -53,22 +54,31 @@ class _SinginPageState extends State<SinginPage> {
       if (!mounted) return;
 
       final data = jsonDecode(response.body);
-      if (response.statusCode == 200 && data['message'] == 'success') {
-        if (data['user']['username'] != null) {
-          prefs.setString('username', data['user']['username']);
-        }
-        if (data['user']['email'] != null) {
-          prefs.setString('email', data['user']['email']);
-        }
+      _isAccepted = data['user']['is_accept'];
+      print(_isAccepted);
+      if (_isAccepted == true) {
+        if (response.statusCode == 200 && data['message'] == 'success') {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('token', data['token']);
+          prefs.setString('username', data['user']['username'] ?? '');
+          prefs.setString('email', data['user']['email'] ?? '');
 
-        final roleId = data['user']['id-role'] ?? data['user']['id_role'];
-        if (roleId == 1) {
-          Navigator.pushReplacementNamed(context, '/Admin');
-        } else if (roleId == 2) {
-          Navigator.pushReplacementNamed(context, '/Teacher');
-        } else if (roleId == 3) {
-          Navigator.pushReplacementNamed(context, '/Student');
+          final roleId = data['user']['id-role'] ?? data['user']['id_role'];
+
+          if (roleId == 1) {
+            Navigator.pushReplacementNamed(context, '/Admin');
+          } else if (roleId == 2) {
+            Navigator.pushReplacementNamed(context, '/Teacher');
+          } else if (roleId == 3) {
+            Navigator.pushReplacementNamed(context, '/Student');
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Invalid login')),
+          );
         }
+      } else {
+        Navigator.pushReplacementNamed(context, '/waiting');
       }
     } catch (e) {
       prefs.remove('token');
@@ -81,22 +91,9 @@ class _SinginPageState extends State<SinginPage> {
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Check your email and password',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Check your email and password")));
       return;
     }
 
@@ -115,64 +112,70 @@ class _SinginPageState extends State<SinginPage> {
 
       if (!mounted) return;
 
-      if (response.statusCode == 200 && data['message'] == 'success') {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('token', data['token']);
-        if (data['user']['username'] != null) {
-          prefs.setString('username', data['user']['username']);
-        }
-        if (data['user']['email'] != null) {
-          prefs.setString('email', data['user']['email']);
-        }
+      if (response.statusCode == 401) {
+        // Wrong email or password
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Wrong email or password"),
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.error.withValues(alpha: 0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        return; // stop here
+      }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Login successful'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+      if (response.statusCode != 200) {
+        // Other errors
+        throw Exception("Unexpected error");
+      }
+
+      // ✔ Now it's safe to read the user
+      final user = data['user'];
+      _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
+
+      if (!_isAccepted) {
+        Navigator.pushNamed(context, '/waiting');
+        return;
+      }
+
+      // ✔ Login success
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', data['token']);
+      prefs.setString('username', user['username'] ?? '');
+      prefs.setString('email', user['email'] ?? '');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Login success'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-        );
-        // Check role - use both 'id-role' and 'id_role' for compatibility
-        final roleId = data['user']['id-role'] ?? data['user']['id_role'];
-        if (roleId == 1) {
-          Navigator.pushReplacementNamed(context, '/Admin');
-        } else if (roleId == 2) {
-          Navigator.pushReplacementNamed(context, '/Teacher');
-        } else if (roleId == 3) {
-          Navigator.pushReplacementNamed(context, '/Student');
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              data['message'] ?? 'Invalid email or password',
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        ),
+      );
+
+      // Role redirect
+      final roleId = user['id-role'] ?? user['id_role'];
+      if (roleId == 1) {
+        Navigator.pushReplacementNamed(context, '/Admin');
+      } else if (roleId == 2) {
+        Navigator.pushReplacementNamed(context, '/Teacher');
+      } else if (roleId == 3) {
+        Navigator.pushReplacementNamed(context, '/Student');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'Problem with server',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          content: Text("failed to login"),
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.error.withValues(alpha: 0.8),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -247,8 +250,7 @@ class _SinginPageState extends State<SinginPage> {
                         return null;
                       },
                     ),
-                   
-                    
+
                     const SizedBox(height: 20),
                     BuildInputField(
                       hintText: 'Password',
