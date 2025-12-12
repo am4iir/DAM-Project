@@ -34,7 +34,7 @@ class _SinginPageState extends State<SinginPage> {
   }
 
   void verifyToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) return;
 
@@ -42,48 +42,51 @@ class _SinginPageState extends State<SinginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final url = Uri.parse('http://10.0.2.2:3000/token/verify');
       final response = await http
           .post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'token': token}),
+            Uri.parse('http://10.0.2.2:3000/token/verify'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
           )
           .timeout(const Duration(seconds: 5));
 
       if (!mounted) return;
 
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        prefs.remove('token');
+        prefs.remove('username');
+        prefs.remove('email');
+        return;
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception('Server error');
+      }
+
       final data = jsonDecode(response.body);
-      _isAccepted = data['user']['is_accept'];
-      print(_isAccepted);
-      if (_isAccepted == true) {
-        if (response.statusCode == 200 && data['message'] == 'success') {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString('token', data['token']);
-          prefs.setString('username', data['user']['username'] ?? '');
-          prefs.setString('email', data['user']['email'] ?? '');
+      final user = data['user'];
 
-          final roleId = data['user']['id-role'] ?? data['user']['id_role'];
+      _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
 
-          if (roleId == 1) {
-            Navigator.pushReplacementNamed(context, '/Admin');
-          } else if (roleId == 2) {
-            Navigator.pushReplacementNamed(context, '/Teacher');
-          } else if (roleId == 3) {
-            Navigator.pushReplacementNamed(context, '/Student');
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['message'] ?? 'Invalid login')),
-          );
-        }
-      } else {
+      if (!_isAccepted) {
         Navigator.pushReplacementNamed(context, '/waiting');
+        return;
+      }
+
+      final roleId = user['id-role'] ?? user['id_role'];
+
+      if (roleId == 1) {
+        Navigator.pushReplacementNamed(context, '/Admin');
+      } else if (roleId == 2) {
+        Navigator.pushReplacementNamed(context, '/Teacher');
+      } else if (roleId == 3) {
+        Navigator.pushReplacementNamed(context, '/Student');
       }
     } catch (e) {
-      prefs.remove('token');
-      prefs.remove('username');
-      prefs.remove('email');
+      // network / timeout → keep token
+      debugPrint('verifyToken error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

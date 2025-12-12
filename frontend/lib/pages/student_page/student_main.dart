@@ -1,12 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:frontend/pages/student_page/student_page/student_cart_page.dart';
 import 'package:frontend/pages/student_page/student_page/student_home_page.dart';
 import 'package:frontend/pages/student_page/student_page/student_profile_page.dart';
 import 'package:frontend/pages/student_page/student_page/student_program_page.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:flutter/material.dart';
+import 'package:frontend/widgets/widget/navbar.dart';
 
 class Student extends StatefulWidget {
-  Student({super.key});
+  const Student({super.key});
 
   @override
   State<Student> createState() => _StudentState();
@@ -15,11 +15,18 @@ class Student extends StatefulWidget {
 class _StudentState extends State<Student> {
   int _selectedIndex = 0;
 
-  final List<Widget> studentPages = [
+  final List<Widget> studentPages = const [
     StudentHomePage(),
     StudentProgramPage(),
     StudentCartPage(),
     StudentProfilePage(),
+  ];
+
+  final List<Map<String, dynamic>> navItems = const [
+    {'icon': Icons.home, 'text': 'Home'},
+    {'icon': Icons.calendar_month, 'text': 'Program'},
+    {'icon': Icons.credit_card, 'text': 'Card'},
+    {'icon': Icons.person, 'text': 'Profile'},
   ];
 
   @override
@@ -29,7 +36,6 @@ class _StudentState extends State<Student> {
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
 
-      // Use IndexedStack to preserve page states when switching tabs
       body: IndexedStack(
         index: _selectedIndex,
         children: studentPages,
@@ -41,45 +47,28 @@ class _StudentState extends State<Student> {
           child: Container(
             height: 70,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+              color: theme.colorScheme.background,
               border: Border.all(
                 color: theme.colorScheme.onBackground.withOpacity(0.08),
-                width: 1.5,
               ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.12),
                   blurRadius: 18,
-                  offset: Offset(0, 8),
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: GNav(
-             
-              rippleColor: Colors.grey.shade300,
-              hoverColor: Colors.black,
-              gap: 8,
-              activeColor: Theme.of(context).colorScheme.onBackground,
-              color:Colors.black87,
-              iconSize: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              tabBackgroundColor:Colors.grey.shade300,
-              tabActiveBorder: Border.all(
-                color: Colors.grey.shade300,
-                width: 2,
-              ),
-            
+            child: Navbar(
+              items: navItems,
               selectedIndex: _selectedIndex,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              tabs: const [
-                GButton(icon: Icons.home, text: 'Home'),
-                GButton(icon: Icons.calendar_month, text: 'Program'),
-                GButton(icon: Icons.credit_card, text: 'Card'),
-                GButton(icon: Icons.person, text: 'Profile'),
-              ],
-              onTabChange: (index) => setState(() => _selectedIndex = index),
+              onChanged: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
             ),
           ),
         ),
