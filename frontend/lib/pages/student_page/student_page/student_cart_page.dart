@@ -40,11 +40,13 @@ class _StudentCartPageState extends State<StudentCartPage>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _flipAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     getUserName();
   }
+
   void getUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
@@ -311,10 +313,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 4,
-                      ),
+                      border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.35),
@@ -353,9 +352,10 @@ class _StudentCartPageState extends State<StudentCartPage>
                   // Email Badge
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 12,
+                      vertical: 6,
                     ),
+
                     decoration: BoxDecoration(
                       color: Colors.amber.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -372,6 +372,8 @@ class _StudentCartPageState extends State<StudentCartPage>
                         color: Colors.amber.shade200,
                         letterSpacing: 1,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -403,9 +405,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                      ),
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: Row(
                       children: [
@@ -510,20 +510,14 @@ class _StudentCartPageState extends State<StudentCartPage>
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.15),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: Colors.white.withOpacity(0.7),
-              ),
+              Icon(icon, size: 14, color: Colors.white.withOpacity(0.7)),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -662,7 +656,9 @@ class _StudentCartPageState extends State<StudentCartPage>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
@@ -712,8 +708,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // QR Code
-                     
-                    
+
                       // Emergency Contact
                       Expanded(
                         child: Container(
@@ -795,10 +790,10 @@ class _StudentCartPageState extends State<StudentCartPage>
                       ),
                     ],
                   ),
-                 
+
                   const SizedBox(height: 16),
+
                   // Footer note
-                 
                 ],
               ),
             ),
@@ -811,11 +806,7 @@ class _StudentCartPageState extends State<StudentCartPage>
   Widget _buildBackInfoRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
           child: Row(
@@ -843,5 +834,4 @@ class _StudentCartPageState extends State<StudentCartPage>
       ],
     );
   }
-
 }
