@@ -1,17 +1,15 @@
 const express = require("express");
 require("dotenv").config();
 const router = express.Router();
-const pool = require("../config/db");
+const pool = require("../../config/db");
 const jwt = require("jsonwebtoken");
 
-// ----------------------------
-//      SIGN IN ROUTE
-// ----------------------------
+
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // 1. Validate input
+    
     if (!email || !password) {
       return res.status(400).json({
         message: "Email and password are required",
@@ -19,7 +17,6 @@ router.post("/signin", async (req, res) => {
       });
     }
 
-    // 2. Find user by email
     const queryText = `SELECT * FROM users WHERE email = $1 LIMIT 1`;
     const result = await pool.query(queryText, [email]);
 
@@ -32,7 +29,6 @@ router.post("/signin", async (req, res) => {
 
     const user = result.rows[0];
 
-    // 3. Check password (plain text comparison for now)
     if (user.password_hash !== password) {
       return res.status(401).json({
         message: "Incorrect password",
@@ -40,7 +36,6 @@ router.post("/signin", async (req, res) => {
       });
     }
 
-    // 4. Generate JWT token
     const token = jwt.sign(
       {
         id: user.id,
@@ -51,10 +46,8 @@ router.post("/signin", async (req, res) => {
       { expiresIn: "100h" }
     );
 
-    // 5. Remove sensitive info (password)
     const { password_hash, ...safeUser } = user;
 
-    // 6. Return success
     res.status(200).json({
       message: "success",
       user: safeUser,

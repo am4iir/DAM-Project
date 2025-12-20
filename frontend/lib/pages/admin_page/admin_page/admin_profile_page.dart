@@ -1,17 +1,307 @@
 import 'package:flutter/material.dart';
- 
- class AdminProfilePage extends StatelessWidget {
-   const AdminProfilePage({super.key});
- 
-   @override
-   Widget build(BuildContext context) {
-     return  Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Profile'),
-      ),
-      body: Container(
-        child: Center(child: Text('Admin Profile')),
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AdminProfilePage extends StatefulWidget {
+  const AdminProfilePage({super.key});
+
+  @override
+  State<AdminProfilePage> createState() => _AdminProfilePageState();
+}
+
+class _AdminProfilePageState extends State<AdminProfilePage> {
+  String _username = 'Loading...';
+  String _email = 'Loading...';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username') ?? 'Admin';
+      _email = prefs.getString('email') ?? 'admin@example.com';
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('username');
+    await prefs.remove('email');
+
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/singin', (route) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return Scaffold(
+      backgroundColor: cs.background,
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(theme, cs),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  _buildProfileHeader(theme, cs),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle(theme, 'Account Information'),
+                  const SizedBox(height: 12),
+                  _buildInfoCard(
+                    cs,
+                    Icons.person_outline,
+                    'Username',
+                    _username,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoCard(cs, Icons.email_outlined, 'Email', _email),
+                  const SizedBox(height: 12),
+                  _buildInfoCard(cs, Icons.security, 'Role', 'Administrator'),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle(theme, 'Settings'),
+                  const SizedBox(height: 12),
+                  _buildMenuTile(
+                    cs,
+                    Icons.notifications_none,
+                    'Notifications',
+                    () {},
+                  ),
+                  const SizedBox(height: 12),
+                  _buildMenuTile(
+                    cs,
+                    Icons.dark_mode_outlined,
+                    'Dark Mode',
+                    () {},
+                  ),
+                  const SizedBox(height: 12),
+                  _buildMenuTile(
+                    cs,
+                    Icons.help_outline,
+                    'Help & Support',
+                    () {},
+                  ),
+                  const SizedBox(height: 40),
+                  _buildLogoutButton(cs),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
-   }
- }
+  }
+
+  Widget _buildSliverAppBar(ThemeData theme, ColorScheme cs) {
+    return SliverAppBar(
+      backgroundColor: cs.background,
+      pinned: true,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          'Profile',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+          ),
+        ),
+        centerTitle: false,
+        titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(ThemeData theme, ColorScheme cs) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: cs.primary, width: 2),
+          ),
+          child: CircleAvatar(
+            radius: 50,
+            backgroundColor: cs.primary.withOpacity(0.1),
+            child: Text(
+              _username.isNotEmpty ? _username[0].toUpperCase() : 'A',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: cs.primary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          _username,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _email,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: cs.onSurface.withOpacity(0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(ThemeData theme, String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(
+    ColorScheme cs,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outline),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: cs.primary, size: 24),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: cs.onSurface.withOpacity(0.5),
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuTile(
+    ColorScheme cs,
+    IconData icon,
+    String title,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cs.outline),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: cs.onSurface.withOpacity(0.7), size: 24),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right, color: cs.onSurface.withOpacity(0.3)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(ColorScheme cs) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton.icon(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Logout'),
+              content: const Text('Are you sure you want to logout?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _logout();
+                  },
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        icon: const Icon(Icons.logout, color: Colors.redAccent),
+        label: const Text(
+          'Logout',
+          style: TextStyle(
+            color: Colors.redAccent,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Colors.redAccent, width: 1),
+          ),
+        ),
+      ),
+    );
+  }
+}

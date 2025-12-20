@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/admin_page/admin_page/admin_accept_page.dart';
 import 'package:frontend/pages/admin_page/admin_page/admin_group_menege_page.dart';
 import 'package:frontend/pages/admin_page/admin_page/admin_home_page.dart';
 import 'package:frontend/pages/admin_page/admin_page/admin_profile_page.dart';
@@ -17,12 +18,15 @@ class _StudentState extends State<Admin> {
   final List<Widget> studentPages = const [
     AdminHomePage(),
     AdminGroupMenegePage(),
-    AdminProfilePage()
+    AdminAcceptPage(),
+    AdminProfilePage(),
+    
   ];
 
   final List<Map<String, dynamic>> navItems = const [
     {'icon': Icons.home, 'text': 'Home'},
     {'icon': Icons.groups, 'text': 'Groups'},
+    {'icon': Icons.unsubscribe_sharp, 'text': 'Requests'},
     {'icon': Icons.person, 'text': 'Profile'},
   ];
 

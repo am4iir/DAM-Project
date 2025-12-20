@@ -129,15 +129,13 @@ class _SinginPageState extends State<SinginPage> {
             ),
           ),
         );
-        return; // stop here
+        return; 
       }
 
       if (response.statusCode != 200) {
-        // Other errors
         throw Exception("Unexpected error");
       }
 
-      // ✔ Now it's safe to read the user
       final user = data['user'];
       _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
 
@@ -146,7 +144,7 @@ class _SinginPageState extends State<SinginPage> {
         return;
       }
 
-      // ✔ Login success
+     
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', data['token']);
       prefs.setString('username', user['username'] ?? '');
@@ -203,157 +201,159 @@ class _SinginPageState extends State<SinginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20),
-                    // Illustration Section
-                    Container(
-                      height: size.height * 0.35,
-                      alignment: Alignment.center,
-                      child: Image.asset(
-                        'assets/undraw_access_account_re_8spm (1) 1.png',
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                        height: 300,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.account_circle,
-                            size: 200,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withOpacity(0.3),
-                          );
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 20),
+                      // Illustration Section
+                      Container(
+                        height: size.height * 0.35,
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          'assets/undraw_access_account_re_8spm (1) 1.png',
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                          height: 300,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.account_circle,
+                              size: 200,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.3),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Hello, Login to continue using our app',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.05),
+                      BuildInputField(
+                        hintText: 'Enter your email',
+                        controller: emailController,
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.text,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          if (!value.contains('@')) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
                         },
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Hello, Login to continue using our app',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.primary,
+                  
+                      const SizedBox(height: 20),
+                      BuildInputField(
+                        hintText: 'Password',
+                        controller: passwordController,
+                        icon: Icons.lock_outline,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    SizedBox(height: size.height * 0.05),
-                    BuildInputField(
-                      hintText: 'Enter your email',
-                      controller: emailController,
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.text,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-                    BuildInputField(
-                      hintText: 'Password',
-                      controller: passwordController,
-                      icon: Icons.lock_outline,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-
-                    const SizedBox(height: 32),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: ElevatedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                if (_formKey.currentState!.validate()) {
-                                  await login(
-                                    emailController.text,
-                                    passwordController.text,
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                      const SizedBox(height: 12),
+                  
+                      const SizedBox(height: 32),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: ElevatedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    await login(
+                                      emailController.text,
+                                      passwordController.text,
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                            shadowColor: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.4),
                           ),
-                          elevation: 4,
-                          shadowColor: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.4),
-                        ),
-                        child: _isLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.onPrimary,
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
                                   ),
                                 ),
-                              )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onBackground.withOpacity(0.8),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/signup');
-                          },
-                          child: Text(
-                            'Sign Up',
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account? ",
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onBackground.withOpacity(0.8),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.05),
-                  ],
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, '/signup');
+                            },
+                            child: Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: size.height * 0.05),
+                    ],
+                  ),
                 ),
               ),
             ),

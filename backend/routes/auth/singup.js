@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
+const pool = require('../../config/db');
 const jwt = require('jsonwebtoken');
 
 router.post('/singup', async (req, res) => {

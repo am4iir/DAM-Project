@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const pool = require("../config/db");
+const pool = require("../../config/db");
 
 router.post("/verify", async (req, res) => {
   try {
