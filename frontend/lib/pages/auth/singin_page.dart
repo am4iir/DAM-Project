@@ -44,7 +44,7 @@ class _SinginPageState extends State<SinginPage> {
     try {
       final response = await http
           .post(
-            Uri.parse('http://10.0.2.2:3000/token/verify'),
+            Uri.parse('http://10.0.2.2:3001/token/verify'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -105,7 +105,7 @@ class _SinginPageState extends State<SinginPage> {
     try {
       final response = await http
           .post(
-            Uri.parse('http://10.0.2.2:3000/signin'),
+            Uri.parse('http://10.0.2.2:3001/signin'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'email': email, 'password': password}),
           )
@@ -149,6 +149,7 @@ class _SinginPageState extends State<SinginPage> {
       prefs.setString('token', data['token']);
       prefs.setString('username', user['username'] ?? '');
       prefs.setString('email', user['email'] ?? '');
+      prefs.setString('role', user['role'] ?? '');
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -1,109 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class TeacherProfilePage extends StatefulWidget {
-  const TeacherProfilePage({super.key});
+class ProfileView extends StatelessWidget {
+  final String username;
+  final String email;
+  final String role;
+  final IconData roleIcon;
+  final VoidCallback onLogout;
+  final List<Widget>? extraMenuItems;
 
-  @override
-  State<TeacherProfilePage> createState() => _TeacherProfilePageState();
-}
-
-class _TeacherProfilePageState extends State<TeacherProfilePage> {
-  String _username = 'Loading...';
-  String _email = 'Loading...';
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _username = prefs.getString('username') ?? 'Teacher';
-      _email = prefs.getString('email') ?? 'teacher@example.com';
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('username');
-    await prefs.remove('email');
-
-    if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/singin', (route) => false);
-  }
+  const ProfileView({
+    super.key,
+    required this.username,
+    required this.email,
+    required this.role,
+    required this.roleIcon,
+    required this.onLogout,
+    this.extraMenuItems,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    return Scaffold(
-      backgroundColor: cs.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(theme, cs),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildProfileHeader(theme, cs),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(theme, 'Account Information'),
-                  const SizedBox(height: 12),
-                  _buildInfoCard(
-                    cs,
-                    Icons.person_outline,
-                    'Username',
-                    _username,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInfoCard(cs, Icons.email_outlined, 'Email', _email),
-                  const SizedBox(height: 12),
-                  _buildInfoCard(cs, Icons.school_outlined, 'Role', 'Teacher'),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(theme, 'Settings'),
-                  const SizedBox(height: 12),
-                  _buildMenuTile(
-                    cs,
-                    Icons.notifications_none,
-                    'Notifications',
-                    () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuTile(
-                    cs,
-                    Icons.dark_mode_outlined,
-                    'Dark Mode',
-                    () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuTile(
-                    cs,
-                    Icons.help_outline,
-                    'Help & Support',
-                    () {},
-                  ),
-                  const SizedBox(height: 40),
-                  _buildLogoutButton(cs),
-                  const SizedBox(height: 40),
-                ],
-              ),
+    return CustomScrollView(
+      slivers: [
+        _buildSliverAppBar(theme, cs),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildProfileHeader(theme, cs),
+                const SizedBox(height: 32),
+                _buildSectionTitle(theme, 'Account Information'),
+                const SizedBox(height: 12),
+                _buildInfoCard(cs, Icons.person_outline, 'Username', username),
+                const SizedBox(height: 12),
+                _buildInfoCard(cs, Icons.email_outlined, 'Email', email),
+                const SizedBox(height: 12),
+                _buildInfoCard(cs, roleIcon, 'Role', role),
+                const SizedBox(height: 32),
+                _buildSectionTitle(theme, 'Settings'),
+                const SizedBox(height: 12),
+                _buildMenuTile(cs, Icons.help_outline, 'Help & Support', () {}),
+                if (extraMenuItems != null) ...extraMenuItems!,
+                const SizedBox(height: 40),
+                _buildLogoutButton(context, cs),
+                const SizedBox(height: 40),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -139,7 +89,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
             radius: 50,
             backgroundColor: cs.primary.withOpacity(0.1),
             child: Text(
-              _username.isNotEmpty ? _username[0].toUpperCase() : 'T',
+              username.isNotEmpty ? username[0].toUpperCase() : '?',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -150,14 +100,14 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
         ),
         const SizedBox(height: 16),
         Text(
-          _username,
+          username,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          _email,
+          email,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: cs.onSurface.withOpacity(0.6),
           ),
@@ -196,24 +146,26 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
         children: [
           Icon(icon, color: cs.primary, size: 24),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: cs.onSurface.withOpacity(0.5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.onSurface.withOpacity(0.5),
+                  ),
                 ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -230,6 +182,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: cs.surface,
@@ -256,7 +209,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
     );
   }
 
-  Widget _buildLogoutButton(ColorScheme cs) {
+  Widget _buildLogoutButton(BuildContext context, ColorScheme cs) {
     return SizedBox(
       width: double.infinity,
       child: TextButton.icon(
@@ -274,7 +227,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _logout();
+                    onLogout();
                   },
                   child: const Text(
                     'Logout',

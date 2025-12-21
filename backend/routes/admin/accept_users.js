@@ -14,7 +14,7 @@ router.get("/show_users", async (req, res) => {
       users: result.rows,
     });
   } catch (err) {
-    console.error("❌ Database error:", err.message);
+    console.error(" Database error:", err.message);
     return res.status(500).json({ message: "Database error" });
   }
 });
@@ -37,7 +37,7 @@ router.post("/accept", async (req, res) => {
 
     return res.status(200).json({ message: "User accepted successfully" });
   } catch (err) {
-    console.error("❌ Database error:", err.message);
+    console.error(" Database error:", err.message);
     return res.status(500).json({ message: "Database error" });
   }
 });
@@ -60,7 +60,7 @@ router.post("/reject", async (req, res) => {
 
     return res.status(200).json({ message: "User rejected successfully" });
   } catch (err) {
-    console.error("❌ Database error:", err.message);
+    console.error(" Database error:", err.message);
     return res.status(500).json({ message: "Database error" });
   }
 });
