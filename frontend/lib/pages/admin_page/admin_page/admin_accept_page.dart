@@ -76,9 +76,9 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to ${accept ? 'accept' : 'reject'} user'),
+            content:
+                Text('Failed to ${accept ? 'accept' : 'reject'} user'),
             backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -95,8 +95,7 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: cs.background,
@@ -107,7 +106,7 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
             SliverAppBar(
               pinned: true,
               elevation: 0,
-              backgroundColor: cs.background.withValues(alpha: 0.9),
+              backgroundColor: cs.background,
               title: const Text(
                 'User Requests',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -118,49 +117,27 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                   icon: const Icon(Icons.refresh),
                 ),
               ],
-              bottom: AppBar(
-                automaticallyImplyLeading: false,
-                elevation: 0,
-                backgroundColor: cs.background,
-                title: TextField(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search by username or email',
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: cs.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(
-                        color: cs.outline.withValues(alpha: 0.2),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ),
 
+            
             SliverToBoxAdapter(
               child: FutureBuilder<List<dynamic>>(
                 future: _usersFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return const _LoadingState();
                   }
+
                   if (snapshot.hasError) {
                     return _ErrorState(onRetry: _refreshUsers);
                   }
+
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const _EmptyState();
                   }
 
                   final users = snapshot.data!;
-
                   final filteredUsers = users.where((user) {
                     final username = (user['username'] ?? '')
                         .toString()
@@ -173,29 +150,199 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                         email.contains(_searchQuery);
                   }).toList();
 
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredUsers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      return _UserRow(
-                        user: filteredUsers[index],
-                        onAccept: () =>
-                            _handleUserAction(filteredUsers[index]['id'], true),
-                        onReject: () => _handleUserAction(
-                          filteredUsers[index]['id'],
-                          false,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _HeaderCard(totalUsers: filteredUsers.length),
+
+                      SizedBox(height: 16),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value.toLowerCase();
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText:
+                                'Search by username or email',
+                            prefixIcon:
+                                const Icon(Icons.search),
+                            filled: true,
+                            fillColor: cs.surface,
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: cs.outline
+                                    .withOpacity(0.2),
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
+                      ),
+
+                      SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'All Requests',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: cs.primary.withOpacity(0.1),
+                                borderRadius:
+                                    BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${filteredUsers.length} users',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: cs.primary,
+                                  fontWeight:
+                                      FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics:
+                            const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(
+                            16, 8, 16, 16),
+                        itemCount: filteredUsers.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final user = filteredUsers[index];
+                          return _UserRow(
+                            user: user,
+                            onAccept: () =>
+                                _handleUserAction(
+                                    user['id'], true),
+                            onReject: () =>
+                                _handleUserAction(
+                                    user['id'], false),
+                          );
+                        },
+                      ),
+                    ],
                   );
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class _HeaderCard extends StatelessWidget {
+  final int totalUsers;
+
+  const _HeaderCard({required this.totalUsers});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [cs.primary, cs.primary.withOpacity(0.7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Manage Requests',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Review and approve new users',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius:
+                        BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$totalUsers Requests',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight:
+                          FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 56,
+            width: 56,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.25),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.group,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -223,7 +370,8 @@ class _UserRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline.withOpacity(0.9)),
+        border:
+            Border.all(color: cs.outline.withOpacity(0.9)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -236,18 +384,21 @@ class _UserRow extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: cs.primary.withOpacity(0.1),
+            backgroundColor:
+                cs.primary.withOpacity(0.1),
             child: Text(
               username[0].toUpperCase(),
-              style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: cs.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 12),
-
-          /// User info
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   username,
@@ -260,32 +411,30 @@ class _UserRow extends StatelessWidget {
                 Text(
                   email,
                   style: TextStyle(
-                    color: cs.onSurface.withOpacity(0.6),
+                    color: cs.onSurface
+                        .withOpacity(0.6),
                     fontSize: 13,
                   ),
                 ),
               ],
             ),
           ),
-
-          /// Actions
           IconButton(
             onPressed: onReject,
             icon: const Icon(Icons.close),
             color: Colors.redAccent,
-            tooltip: 'Reject',
           ),
           IconButton(
             onPressed: onAccept,
             icon: const Icon(Icons.check),
             color: Colors.green,
-            tooltip: 'Accept',
           ),
         ],
       ),
     );
   }
 }
+
 
 class _LoadingState extends StatelessWidget {
   const _LoadingState();
@@ -294,7 +443,9 @@ class _LoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(top: 80),
-      child: Center(child: CircularProgressIndicator()),
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }
@@ -308,11 +459,15 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 100),
       child: Column(
         children: const [
-          Icon(Icons.check_circle_outline, size: 72, color: Colors.grey),
+          Icon(Icons.check_circle_outline,
+              size: 72, color: Colors.grey),
           SizedBox(height: 12),
           Text(
             'No pending requests',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -331,9 +486,13 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 80),
       child: Column(
         children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+          const Icon(Icons.error_outline,
+              size: 64, color: Colors.redAccent),
           const SizedBox(height: 16),
-          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text('Retry'),
+          ),
         ],
       ),
     );
