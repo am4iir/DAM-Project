@@ -8,11 +8,11 @@ const tokenRoutes = require("./routes/token/token.js");
 const acceptRoutes = require("./routes/admin/accept_users.js");
 const groupRoutes = require("./routes/admin/groups.js");
 const studentRoutes = require("./routes/admin/students.js");
+
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001; // Use 3001 as we've been using it
 const Host = '0.0.0.0';
 
-// Enable CORS for all origins (mobile app support)
 app.use(cors());
 app.use(express.json());
 
@@ -22,6 +22,7 @@ app.use("/token", tokenRoutes);
 app.use("/admin", acceptRoutes);
 app.use("/admin/groups", groupRoutes);
 app.use("/admin/students", studentRoutes);
+
 app.listen(port, Host, () => {
   console.log(`🟢 Server running on http://localhost:${port}`);
   console.log(`🐘 Connected to DB: ${process.env.DB_NAME}@${process.env.DB_HOST}`);

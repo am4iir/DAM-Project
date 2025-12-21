@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -11,11 +13,100 @@ class AdminHomePage extends StatefulWidget {
 class _AdminHomePageState extends State<AdminHomePage> {
   String _username = 'Admin';
   bool _isLoading = true;
-
+  int _totalGroups = 0;
+  int _totalUsers = 0;
+  int _totalUsersPending = 0;
+  int _totalUsersApproved = 0;
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadTotalGroups();
+    _loadTotalUsers();
+    _loadTotalUsersApproved();
+    _loadTotalUsersPending();
+  }
+
+  int _safeParseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.parse(value);
+    return 0;
+  }
+
+  Future<void> _loadTotalUsers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsers'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          _totalUsers = _safeParseInt(data['numberOfUsers']);
+        });
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error loading total users: $e');
+      print('Stack trace: $stackTrace');
+    }
+  }
+
+  Future<void> _loadTotalUsersApproved() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersApproved'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          _totalUsersApproved = _safeParseInt(data['numberOfUsersApproved']);
+        });
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error loading total users: $e');
+      print('Stack trace: $stackTrace');
+    }
+  }
+
+  Future<void> _loadTotalUsersPending() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersPending'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          _totalUsersPending = _safeParseInt(data['numberOfUsersPending']);
+        });
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error loading total users: $e');
+      print('Stack trace: $stackTrace');
+    }
+  }
+
+  Future<void> _loadTotalGroups() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/admin/groups/number-group'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          _totalGroups = _safeParseInt(data['totalGroups']);
+        });
+      } else {}
+    } catch (e, stackTrace) {
+      print('❌ Error loading total groups: $e');
+      print('Stack trace: $stackTrace');
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -168,7 +259,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               child: _buildStatCard(
                 cs,
                 Icons.people,
-                '248',
+                _totalUsers.toString(),
                 'Total Users',
                 Colors.blue,
               ),
@@ -178,7 +269,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               child: _buildStatCard(
                 cs,
                 Icons.groups,
-                '12',
+                _totalGroups.toString(),
                 'Groups',
                 Colors.green,
               ),
@@ -192,7 +283,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               child: _buildStatCard(
                 cs,
                 Icons.pending_actions,
-                '5',
+                _totalUsersPending.toString(),
                 'Pending',
                 Colors.orange,
               ),
@@ -202,7 +293,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               child: _buildStatCard(
                 cs,
                 Icons.check_circle,
-                '243',
+                _totalUsersApproved.toString(),
                 'Approved',
                 Colors.teal,
               ),
@@ -287,7 +378,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           childAspectRatio: 1.4,
           children: [
             _buildActionCard(cs, Icons.person_add, 'Add User', Colors.blue, () {
-              // TODO: Navigate to add user page
+              
             }),
             _buildActionCard(
               cs,
