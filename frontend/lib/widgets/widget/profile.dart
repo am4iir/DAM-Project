@@ -45,6 +45,8 @@ class ProfileView extends StatelessWidget {
                 _buildSectionTitle(theme, 'Settings'),
                 const SizedBox(height: 12),
                 _buildMenuTile(cs, Icons.help_outline, 'Help & Support', () {}),
+                _buildMenuTile(cs, Icons.info_outline, 'About', () {}),
+                _buildMenuTile(cs, Icons.lock_outline, 'Privacy Policy', () {}),
                 if (extraMenuItems != null) ...extraMenuItems!,
                 const SizedBox(height: 40),
                 _buildLogoutButton(context, cs),

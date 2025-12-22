@@ -5,7 +5,7 @@ import 'package:frontend/pages/auth/singin_page.dart';
 import 'package:frontend/pages/auth/singup_page.dart';
 import 'package:frontend/pages/splash_screen_page/splash_screen.dart';
 import 'package:frontend/pages/student_page/student_main.dart';
-import 'package:frontend/pages/teacher/teacher_main.dart';
+import 'package:frontend/pages/teacher_page/teacher_main.dart';
 import 'package:frontend/pages/waiting_page/waiting_page.dart';
 
 void main() {

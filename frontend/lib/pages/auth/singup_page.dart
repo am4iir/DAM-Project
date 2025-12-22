@@ -98,7 +98,7 @@ class _SingupPageState extends State<SingupPage> with SingleTickerProviderStateM
   Future<Map<String, dynamic>?> singup(String username, String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/singup'),
+        Uri.parse('http://10.0.2.2:3001/singup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"username": username, "email": email, "password": password}),
       );

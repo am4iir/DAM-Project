@@ -36,7 +36,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsers() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsers'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsers'),
       );
 
       if (response.statusCode == 200) {
@@ -55,7 +55,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsersApproved() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersApproved'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsersApproved'),
       );
 
       if (response.statusCode == 200) {
@@ -74,7 +74,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsersPending() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersPending'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsersPending'),
       );
 
       if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalGroups() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/number-group'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/number-group'),
       );
 
       if (response.statusCode == 200) {

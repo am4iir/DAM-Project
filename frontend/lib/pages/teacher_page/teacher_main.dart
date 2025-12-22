@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:frontend/lib/pages/teacher_page/teacher_main.dart
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_group_page.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_home_page.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_profile.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_program_page.dart';
-=======
-import 'package:frontend/pages/teacher/teacher_page/teacher_group_page.dart';
-import 'package:frontend/pages/teacher/teacher_page/teacher_home_page.dart';
-import 'package:frontend/pages/teacher/teacher_page/teacher_profile_page.dart';
-import 'package:frontend/pages/teacher/teacher_page/teacher_program_page.dart';
->>>>>>> de5a54ee21c7f9f5ba456ddcdc0a85c5c7422308:frontend/lib/pages/teacher/teacher_main.dart
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/widgets/widget/navbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
