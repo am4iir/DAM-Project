@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class WaitingPage extends StatefulWidget {
   const WaitingPage({super.key});
@@ -76,7 +77,7 @@ class _WaitingPageState extends State<WaitingPage>
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    
+
                     boxShadow: [
                       BoxShadow(
                         color: Colors.white.withOpacity(0.3),
@@ -90,7 +91,7 @@ class _WaitingPageState extends State<WaitingPage>
                       ),
                     ],
                   ),
-              
+
                   child: Image.asset(
                     'assets/log.png',
                     fit: BoxFit.contain,
@@ -195,7 +196,10 @@ class _WaitingPageState extends State<WaitingPage>
 
               // Decorative bottom elements
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 16,
+                ),
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.15),
@@ -231,7 +235,7 @@ class _WaitingPageState extends State<WaitingPage>
               // Back to login button
               TextButton.icon(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/singin');
+                  context.go('/signin');
                 },
                 icon: Icon(
                   Icons.arrow_back_rounded,
@@ -247,7 +251,10 @@ class _WaitingPageState extends State<WaitingPage>
                   ),
                 ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
 

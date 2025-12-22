@@ -8,6 +8,7 @@ const tokenRoutes = require("./routes/token/token.js");
 const acceptRoutes = require("./routes/admin/accept_users.js");
 const groupRoutes = require("./routes/admin/groups.js");
 const studentRoutes = require("./routes/admin/students.js");
+const moduleRoutes = require("./routes/admin/modules.js");
 
 const app = express();
 const port = process.env.PORT || 3001; // Use 3001 as we've been using it
@@ -22,6 +23,7 @@ app.use("/token", tokenRoutes);
 app.use("/admin", acceptRoutes);
 app.use("/admin/groups", groupRoutes);
 app.use("/admin/students", studentRoutes);
+app.use("/admin/modules", moduleRoutes);
 
 app.listen(port, Host, () => {
   console.log(`🟢 Server running on http://localhost:${port}`);

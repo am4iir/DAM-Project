@@ -17,6 +17,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   int _totalUsers = 0;
   int _totalUsersPending = 0;
   int _totalUsersApproved = 0;
+  int _selectedIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -36,7 +37,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsers() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsers'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsers'),
       );
 
       if (response.statusCode == 200) {
@@ -55,7 +56,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsersApproved() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersApproved'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsersApproved'),
       );
 
       if (response.statusCode == 200) {
@@ -74,7 +75,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalUsersPending() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/numberUsersPending'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/numberUsersPending'),
       );
 
       if (response.statusCode == 200) {
@@ -93,7 +94,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Future<void> _loadTotalGroups() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/admin/groups/number-group'),
+        Uri.parse('http://10.0.2.2:3001/admin/groups/number-group'),
       );
 
       if (response.statusCode == 200) {
@@ -140,8 +141,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   _buildWelcomeCard(theme, cs),
                   const SizedBox(height: 24),
                   _buildStatsSection(theme, cs),
-                  const SizedBox(height: 24),
-                  _buildQuickActionsSection(theme, cs),
                   const SizedBox(height: 24),
                   _buildRecentActivitySection(theme, cs),
                   const SizedBox(height: 20),
@@ -316,7 +315,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline.withOpacity(0.5)),
+        border: Border.all(color: cs.outline.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -354,104 +353,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionsSection(ThemeData theme, ColorScheme cs) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Actions',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.4,
-          children: [
-            _buildActionCard(cs, Icons.person_add, 'Add User', Colors.blue, () {
-              
-            }),
-            _buildActionCard(
-              cs,
-              Icons.group_add,
-              'Create Group',
-              Colors.green,
-              () {
-                // TODO: Navigate to create group page
-              },
-            ),
-            _buildActionCard(
-              cs,
-              Icons.assessment,
-              'View Reports',
-              Colors.purple,
-              () {
-                // TODO: Navigate to reports page
-              },
-            ),
-            _buildActionCard(cs, Icons.settings, 'Settings', Colors.orange, () {
-              // TODO: Navigate to settings page
-            }),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(
-    ColorScheme cs,
-    IconData icon,
-    String label,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outline.withOpacity(0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: cs.onSurface,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -519,7 +420,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outline.withOpacity(0.5)),
+        border: Border.all(color: cs.outline.withOpacity(0.3)),
       ),
       child: Row(
         children: [

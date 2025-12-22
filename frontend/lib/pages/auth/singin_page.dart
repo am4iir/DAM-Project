@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:frontend/widgets/widget/_buildInputField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 class SinginPage extends StatefulWidget {
   const SinginPage({super.key});
@@ -71,18 +72,18 @@ class _SinginPageState extends State<SinginPage> {
       _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
 
       if (!_isAccepted) {
-        Navigator.pushReplacementNamed(context, '/waiting');
+        context.go('/waiting');
         return;
       }
 
       final roleId = user['id-role'] ?? user['id_role'];
 
       if (roleId == 1) {
-        Navigator.pushReplacementNamed(context, '/Admin');
+        context.go('/admin');
       } else if (roleId == 2) {
-        Navigator.pushReplacementNamed(context, '/Teacher');
+        context.go('/teacher');
       } else if (roleId == 3) {
-        Navigator.pushReplacementNamed(context, '/Student');
+        context.go('/student');
       }
     } catch (e) {
       // network / timeout → keep token
@@ -129,7 +130,7 @@ class _SinginPageState extends State<SinginPage> {
             ),
           ),
         );
-        return; 
+        return;
       }
 
       if (response.statusCode != 200) {
@@ -140,11 +141,10 @@ class _SinginPageState extends State<SinginPage> {
       _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
 
       if (!_isAccepted) {
-        Navigator.pushNamed(context, '/waiting');
+        context.go('/waiting');
         return;
       }
 
-     
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', data['token']);
       prefs.setString('username', user['username'] ?? '');
@@ -165,11 +165,11 @@ class _SinginPageState extends State<SinginPage> {
       // Role redirect
       final roleId = user['id-role'] ?? user['id_role'];
       if (roleId == 1) {
-        Navigator.pushReplacementNamed(context, '/Admin');
+        context.go('/admin');
       } else if (roleId == 2) {
-        Navigator.pushReplacementNamed(context, '/Teacher');
+        context.go('/teacher');
       } else if (roleId == 3) {
-        Navigator.pushReplacementNamed(context, '/Student');
+        context.go('/student');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -253,7 +253,7 @@ class _SinginPageState extends State<SinginPage> {
                           return null;
                         },
                       ),
-                  
+
                       const SizedBox(height: 20),
                       BuildInputField(
                         hintText: 'Password',
@@ -271,7 +271,7 @@ class _SinginPageState extends State<SinginPage> {
                         },
                       ),
                       const SizedBox(height: 12),
-                  
+
                       const SizedBox(height: 32),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -339,7 +339,7 @@ class _SinginPageState extends State<SinginPage> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushReplacementNamed(context, '/signup');
+                              context.go('/signup');
                             },
                             child: Text(
                               'Sign Up',

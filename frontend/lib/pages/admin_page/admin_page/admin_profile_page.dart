@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/widgets/widget/profile.dart'; // Import shared ProfileView
 
@@ -48,7 +49,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
     await prefs.remove('email');
 
     if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/singin', (route) => false);
+    context.go('/signin');
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/widgets/Studentpages/Examgrades.dart';
 import 'package:frontend/widgets/Studentpages/AssessmentPage.dart';
 import 'package:frontend/widgets/Studentpages/ExamsSchedule.dart';
+import 'package:go_router/go_router.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -46,7 +47,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: AppBar(
@@ -170,7 +171,10 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -209,7 +213,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Groupandsection()),
+                        MaterialPageRoute(
+                          builder: (context) => Groupandsection(),
+                        ),
                       );
                     },
                   ),
@@ -233,7 +239,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ExamsSchedule()),
+                        MaterialPageRoute(
+                          builder: (context) => ExamsSchedule(),
+                        ),
                       );
                     },
                   ),
@@ -245,7 +253,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => AssessmentPage()),
+                        MaterialPageRoute(
+                          builder: (context) => AssessmentPage(),
+                        ),
                       );
                     },
                   ),
@@ -269,9 +279,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           // Drawer Header
           Container(
             height: 200,
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
-            ),
+            decoration: BoxDecoration(color: colorScheme.primary),
             padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -334,7 +342,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const StudentProgramPage()),
+                MaterialPageRoute(
+                  builder: (context) => const StudentProgramPage(),
+                ),
               );
             },
           ),
@@ -346,7 +356,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const StudentProfilePage()),
+                MaterialPageRoute(
+                  builder: (context) => const StudentProfilePage(),
+                ),
               );
             },
           ),
@@ -395,7 +407,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                         prefs.remove('token');
                         prefs.remove('username');
                         prefs.remove('email');
-                        Navigator.pushReplacementNamed(context, '/singin');
+                        context.go('/signin');
                       },
                       child: Text(
                         'Logout',
@@ -425,17 +437,21 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final color = isLogout ? colorScheme.error : colorScheme.primary;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+        color: isSelected
+            ? colorScheme.primary.withOpacity(0.1)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
         leading: Icon(
           icon,
-          color: isSelected ? colorScheme.primary : (isLogout ? colorScheme.error : colorScheme.onSurfaceVariant),
+          color: isSelected
+              ? colorScheme.primary
+              : (isLogout ? colorScheme.error : colorScheme.onSurfaceVariant),
         ),
         title: Text(
           title,
@@ -445,9 +461,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         ),
         onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -461,7 +475,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final cardColor = isPrimary ? colorScheme.primary : colorScheme.secondary;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -517,7 +531,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final cardColor = isPrimary ? colorScheme.primary : colorScheme.secondary;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -545,11 +559,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: Icon(icon, color: Colors.white, size: 32),
               ),
               const SizedBox(height: 16),
               Text(

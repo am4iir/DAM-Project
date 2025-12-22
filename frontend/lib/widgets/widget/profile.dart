@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatelessWidget {
   final String username;
@@ -45,6 +46,8 @@ class ProfileView extends StatelessWidget {
                 _buildSectionTitle(theme, 'Settings'),
                 const SizedBox(height: 12),
                 _buildMenuTile(cs, Icons.help_outline, 'Help & Support', () {}),
+               _buildMenuTile(cs, Icons.info_outline, 'About', () {}),
+                 _buildMenuTile(cs, Icons.phone_outlined, 'Contact Us', () {}),
                 if (extraMenuItems != null) ...extraMenuItems!,
                 const SizedBox(height: 40),
                 _buildLogoutButton(context, cs),
@@ -221,12 +224,12 @@ class ProfileView extends StatelessWidget {
               content: const Text('Are you sure you want to logout?'),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    context.pop();
                     onLogout();
                   },
                   child: const Text(
