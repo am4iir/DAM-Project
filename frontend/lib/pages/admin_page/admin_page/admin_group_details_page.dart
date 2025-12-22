@@ -13,6 +13,7 @@ class AdminGroupDetailsPage extends StatefulWidget {
 class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
   late Future<List<dynamic>> _studentsFuture;
   final String _baseUrl = 'http://10.0.2.2:3001/admin/groups';
+  final String _baseUrl2 = 'http://10.0.2.2:3001/admin/students';
 
   @override
   void initState() {
@@ -34,6 +35,28 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
       }
     } catch (e) {
       throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> _deleteStudent(int studentId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl2/delete/$studentId'),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _studentsFuture = _fetchStudents();
+        });
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Delete failed')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Network error')));
     }
   }
 
@@ -109,8 +132,8 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  side: BorderSide(color: cs.outline.withOpacity(0.1)),
+                  borderRadius: BorderRadius.circular(19),
+                  side: BorderSide(color: cs.outline.withOpacity(0.8)),
                 ),
                 child: ListTile(
                   leading: CircleAvatar(
@@ -128,9 +151,9 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(student['email']),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: cs.onSurfaceVariant.withOpacity(0.3),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: cs.error),
+                    onPressed: () => _deleteStudent(student['id']),
                   ),
                 ),
               );

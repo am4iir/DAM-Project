@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+
+
+
 
 class SolashScreen extends StatefulWidget {
   const SolashScreen({super.key});
@@ -40,7 +44,7 @@ class _SolashScreenState extends State<SolashScreen>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/singin');
+        context.go('/signin');
       }
     });
   }

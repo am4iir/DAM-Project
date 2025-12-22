@@ -31,3 +31,27 @@ CREATE TABLE teacher_groups (
   UNIQUE (teacher_id, group_id)
 );
 
+CREATE TABLE modules (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  level VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE teacher_modules (
+  id SERIAL PRIMARY KEY,
+  teacher_id INTEGER NOT NULL,
+  module_id INTEGER NOT NULL,
+
+  CONSTRAINT fk_teacher
+    FOREIGN KEY (teacher_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_module
+    FOREIGN KEY (module_id)
+    REFERENCES modules(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT uq_teacher_module
+    UNIQUE (teacher_id, module_id)
+);

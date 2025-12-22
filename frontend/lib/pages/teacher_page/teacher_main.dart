@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_group_page.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_home_page.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_profile.dart';
 import 'package:frontend/pages/teacher_page/teacher_page/teacher_program_page.dart';
-import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/widgets/widget/navbar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 class Teacher extends StatefulWidget {
   const Teacher({super.key});
@@ -19,12 +17,11 @@ class _TeacherState extends State<Teacher> {
   int _selectedIndex = 0;
 
   final List<Widget> studentPages = const [
-   TeacherHomePage(),
-   
-   TeacherProgramPage(),
-   TeacherGroupPage(),
-   TeacherProfilePage(),
-    
+    TeacherHomePage(),
+
+    TeacherProgramPage(),
+    TeacherGroupPage(),
+    TeacherProfilePage(),
   ];
 
   final List<Map<String, dynamic>> navItems = const [
@@ -41,10 +38,7 @@ class _TeacherState extends State<Teacher> {
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
 
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: studentPages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: studentPages),
 
       bottomNavigationBar: SafeArea(
         child: Padding(

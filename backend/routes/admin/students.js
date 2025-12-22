@@ -33,12 +33,12 @@ router.post("/assign", async (req, res) => {
         if (!student_id) {
             return res.status(400).json({ message: "Student ID is required" });
         }
-        if(!group_id){
+        if (!group_id) {
             return res.status(400).json({ message: "Group ID is required" });
         }
 
         const queryText = `insert into student_groups (group_id, student_id) values ($1, $2) `;
-        const result = await pool.query(queryText, [group_id , student_id]);
+        const result = await pool.query(queryText, [group_id, student_id]);
 
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "Student not found" });
@@ -50,5 +50,26 @@ router.post("/assign", async (req, res) => {
         return res.status(500).json({ message: "Database error" });
     }
 });
+router.delete("/delete/:studentId", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const result = await pool.query(
+      "DELETE FROM student_groups WHERE student_id = $1",
+      [studentId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    return res.status(200).json({ message: "Student deleted successfully" });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ message: "Database error" });
+  }
+});
+
+
 
 module.exports = router;

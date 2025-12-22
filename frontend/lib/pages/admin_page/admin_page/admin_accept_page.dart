@@ -111,12 +111,7 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                 'User Requests',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              actions: [
-                IconButton(
-                  onPressed: _refreshUsers,
-                  icon: const Icon(Icons.refresh),
-                ),
-              ],
+             
             ),
 
             

@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../../config/db");
 
-// Get all groups
 router.get("/", async (req, res) => {
     try {
         const queryText = `SELECT * FROM groups ORDER BY created_at DESC`;
@@ -18,29 +17,56 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Create a group
 router.post("/", async (req, res) => {
-    try {
-        const { name, level, max_students } = req.body;
+  try {
+    const { name, level, max_students } = req.body;
 
-        if (!name || !level || !max_students) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
+    const listlevel = ["L1", "L2", "L3", "M1", "M5", "G1", "G2", "G3", "G4", "G5"];
 
-        console.log(" Creating group:", { name, level, max_students });
-        const queryText = `INSERT INTO groups (name, level, max_students) VALUES ($1, $2, $3) RETURNING *`;
-        const result = await pool.query(queryText, [name, level, max_students]);
-        console.log(" Group created:", result.rows[0]);
-
-        return res.status(201).json({
-            message: "Group created successfully",
-            group: result.rows[0],
-        });
-    } catch (err) {
-        console.error(" Database error:", err.message);
-        return res.status(500).json({ message: "Database error" });
+    if (!name || !level || max_students === undefined) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+
+    const maxStudentsNumber = Number(max_students);
+
+
+    if (Number.isNaN(maxStudentsNumber)) {
+      return res.status(400).json({ message: "Max students must be a number" });
+    }
+
+    if (maxStudentsNumber <= 0) {
+      return res.status(400).json({ message: "Max students must be greater than 0" });
+    }
+
+
+    if (!listlevel.includes(level)) {
+      return res.status(400).json({
+        message: "Level must be one of: L1, L2, L3, M1, M5, G1, G2, G3, G4, G5",
+      });
+    }
+
+    const queryText = `
+      INSERT INTO groups (name, level, max_students)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `;
+
+    const result = await pool.query(queryText, [
+      name,
+      level,
+      maxStudentsNumber,
+    ]);
+
+    return res.status(201).json({
+      message: "Group created successfully",
+      group: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Database error:", err.message);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
+
 
 // Delete a group
 router.delete("/:id", async (req, res) => {

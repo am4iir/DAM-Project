@@ -37,7 +37,7 @@ class _StudentCartPageState extends State<StudentCartPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _flipAnimation = Tween<double>(
@@ -98,7 +98,7 @@ class _StudentCartPageState extends State<StudentCartPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Instruction text
+                
                 Text(
                   'Tap the card to flip',
                   style: TextStyle(
@@ -112,22 +112,23 @@ class _StudentCartPageState extends State<StudentCartPage>
                 GestureDetector(
                   onTap: _toggleCard,
                   child: AnimatedBuilder(
-                    animation: _flipAnimation,
+                    animation: _controller,
                     builder: (context, child) {
-                      final angle = _flipAnimation.value * math.pi;
-                      final isBack = angle > math.pi / 2;
+                      final value = _controller.value;
+                      final angle = value * math.pi;
+
                       return Transform(
                         alignment: Alignment.center,
                         transform: Matrix4.identity()
                           ..setEntry(3, 2, 0.001)
                           ..rotateY(angle),
-                        child: isBack
-                            ? Transform(
+                        child: value < 0.5
+                            ? _buildFrontCard(context)
+                            : Transform(
                                 alignment: Alignment.center,
                                 transform: Matrix4.identity()..rotateY(math.pi),
                                 child: _buildBackCard(context),
-                              )
-                            : _buildFrontCard(context),
+                              ),
                       );
                     },
                   ),
@@ -203,29 +204,6 @@ class _StudentCartPageState extends State<StudentCartPage>
                 ),
               ),
             ),
-            // Holographic Effect Lines
-            ...List.generate(6, (index) {
-              return Positioned(
-                top: 80 + (index * 90.0),
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 1,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        Colors.white.withOpacity(0.08),
-                        Colors.white.withOpacity(0.15),
-                        Colors.white.withOpacity(0.08),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-            // Card Content
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -306,7 +284,6 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ],
                   ),
                   const SizedBox(height: 28),
-                  // Centered Student Photo
                   Container(
                     width: 140,
                     height: 155,
@@ -355,21 +332,17 @@ class _StudentCartPageState extends State<StudentCartPage>
                       horizontal: 12,
                       vertical: 6,
                     ),
-
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.amber.withOpacity(0.5),
-                        width: 1.5,
-                      ),
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white.withOpacity(0.15)),
                     ),
                     child: Text(
                       email ?? 'Loading...',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.amber.shade200,
+                        color: const Color.fromARGB(192, 255, 255, 255),
                         letterSpacing: 1,
                       ),
                       maxLines: 1,
@@ -680,8 +653,6 @@ class _StudentCartPageState extends State<StudentCartPage>
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Divider(height: 1),
-                        const SizedBox(height: 16),
                         _buildBackInfoRow(
                           'annee of student',
                           studentData['dateOfBirth']!,
@@ -703,97 +674,85 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ),
                   ),
                   const SizedBox(height: 50),
-                  // QR Code and Emergency Contact Row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // QR Code
-
-                      // Emergency Contact
-                      Expanded(
-                        child: Container(
-                          height: 110,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.25),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  // Emergency Contact
+                  Expanded(
+                    child: Container(
+                      height: 110,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.25),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.emergency,
-                                    size: 16,
-                                    color: Colors.amber.shade300,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'EMERGENCY',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                ],
+                              Icon(
+                                Icons.emergency,
+                                size: 16,
+                                color: Colors.amber.shade300,
                               ),
-                              const Spacer(),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.phone,
-                                    size: 15,
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '+213 XXX XXX XXX',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.local_hospital,
-                                    size: 15,
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      'Health Center',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white.withOpacity(0.9),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 6),
+                              const Text(
+                                'EMERGENCY',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1,
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.phone,
+                                size: 15,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                '+213 XXX XXX XXX',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.local_hospital,
+                                size: 15,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Health Center',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Footer note
                 ],
               ),
             ),
