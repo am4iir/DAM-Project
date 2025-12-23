@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-
-
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SolashScreen extends StatefulWidget {
   const SolashScreen({super.key});
@@ -17,6 +17,8 @@ class _SolashScreenState extends State<SolashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -42,11 +44,74 @@ class _SolashScreenState extends State<SolashScreen>
 
     _controller.forward();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        context.go('/signin');
+
+    
+    _verifyAndNavigate();
+  }
+
+  Future<void> _verifyAndNavigate() async {
+   
+    final startTime = DateTime.now();
+
+    String? targetRoute;
+    Map<String, dynamic>? userData;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (token != null && token.isNotEmpty) {
+        final response = await http
+            .post(
+              Uri.parse('http://10.0.2.2:3001/token/verify'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
+            )
+            .timeout(const Duration(seconds: 5));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          userData = data['user'];
+
+          final bool isAccepted =
+              userData?['is_accept'] == true || userData?['is_accept'] == 1;
+
+          if (!isAccepted) {
+            targetRoute = '/waiting';
+          } else {
+            final roleId = userData?['id-role'] ?? userData?['id_role'];
+            if (roleId == 1)
+              targetRoute = '/admin';
+            else if (roleId == 2)
+              targetRoute = '/teacher';
+            else if (roleId == 3)
+              targetRoute = '/student';
+          }
+        } else if (response.statusCode == 401 || response.statusCode == 403) {
+          await prefs.remove('token');
+          await prefs.remove('username');
+          await prefs.remove('email');
+          targetRoute = '/signin';
+        }
       }
-    });
+    } catch (e) {
+      debugPrint('verifyToken error: $e');
+    }
+
+    targetRoute ??= '/signin';
+
+    final elapsed = DateTime.now().difference(startTime);
+    final remaining = const Duration(milliseconds: 2500) - elapsed;
+
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
+
+    if (mounted) {
+      context.go(targetRoute);
+    }
   }
 
   @override
@@ -60,9 +125,7 @@ class _SolashScreenState extends State<SolashScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
         child: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -75,10 +138,9 @@ class _SolashScreenState extends State<SolashScreen>
                   Container(
                     width: 100,
                     height: 100,
-                    child: Image.asset('assets/log.png'), 
-                    
+                    child: Image.asset('assets/log.png'),
                   ),
-                 
+
                   // App name
                   Text(
                     'canvus',
@@ -99,14 +161,12 @@ class _SolashScreenState extends State<SolashScreen>
   }
 }
 
-
 class PetalIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-  
     final circlePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -114,55 +174,90 @@ class PetalIconPainter extends CustomPainter {
     canvas.drawCircle(center, radius, circlePaint);
 
     final petalPaint = Paint()
-      ..color = const Color(0xFF00A8B5) 
+      ..color = const Color(0xFF00A8B5)
       ..style = PaintingStyle.fill;
 
-   
     final petalRadius = radius * 0.9;
-    
+
     for (int i = 0; i < 4; i++) {
       final path = Path();
       final angle = i * 90 * (3.14159 / 180);
-      
+
       // Calculate petal edge points on circle
       Offset edgePoint1, edgePoint2;
-      if (i == 0) { // Top
-        edgePoint1 = Offset(center.dx - petalRadius * 0.6, center.dy - petalRadius * 0.9);
-        edgePoint2 = Offset(center.dx + petalRadius * 0.6, center.dy - petalRadius * 0.9);
-      } else if (i == 1) { // Right
-        edgePoint1 = Offset(center.dx + petalRadius * 0.9, center.dy - petalRadius * 0.6);
-        edgePoint2 = Offset(center.dx + petalRadius * 0.9, center.dy + petalRadius * 0.6);
-      } else if (i == 2) { // Bottom
-        edgePoint1 = Offset(center.dx + petalRadius * 0.6, center.dy + petalRadius * 0.9);
-        edgePoint2 = Offset(center.dx - petalRadius * 0.6, center.dy + petalRadius * 0.9);
-      } else { // Left
-        edgePoint1 = Offset(center.dx - petalRadius * 0.9, center.dy + petalRadius * 0.6);
-        edgePoint2 = Offset(center.dx - petalRadius * 0.9, center.dy - petalRadius * 0.6);
+      if (i == 0) {
+        // Top
+        edgePoint1 = Offset(
+          center.dx - petalRadius * 0.6,
+          center.dy - petalRadius * 0.9,
+        );
+        edgePoint2 = Offset(
+          center.dx + petalRadius * 0.6,
+          center.dy - petalRadius * 0.9,
+        );
+      } else if (i == 1) {
+        // Right
+        edgePoint1 = Offset(
+          center.dx + petalRadius * 0.9,
+          center.dy - petalRadius * 0.6,
+        );
+        edgePoint2 = Offset(
+          center.dx + petalRadius * 0.9,
+          center.dy + petalRadius * 0.6,
+        );
+      } else if (i == 2) {
+        // Bottom
+        edgePoint1 = Offset(
+          center.dx + petalRadius * 0.6,
+          center.dy + petalRadius * 0.9,
+        );
+        edgePoint2 = Offset(
+          center.dx - petalRadius * 0.6,
+          center.dy + petalRadius * 0.9,
+        );
+      } else {
+        // Left
+        edgePoint1 = Offset(
+          center.dx - petalRadius * 0.9,
+          center.dy + petalRadius * 0.6,
+        );
+        edgePoint2 = Offset(
+          center.dx - petalRadius * 0.9,
+          center.dy - petalRadius * 0.6,
+        );
       }
-      
+
       path.moveTo(edgePoint1.dx, edgePoint1.dy);
-      
-      
+
       final midPoint = Offset(
         center.dx + (edgePoint1.dx - center.dx) * 0.3,
         center.dy + (edgePoint1.dy - center.dy) * 0.3,
       );
-      
+
       final nearCenter = Offset(
         center.dx + (edgePoint1.dx - center.dx) * 0.12,
         center.dy + (edgePoint1.dy - center.dy) * 0.12,
       );
-      
-      path.quadraticBezierTo(midPoint.dx, midPoint.dy, nearCenter.dx, nearCenter.dy);
-      
-      
+
+      path.quadraticBezierTo(
+        midPoint.dx,
+        midPoint.dy,
+        nearCenter.dx,
+        nearCenter.dy,
+      );
+
       final midPoint2 = Offset(
         center.dx + (edgePoint2.dx - center.dx) * 0.3,
         center.dy + (edgePoint2.dy - center.dy) * 0.3,
       );
-      
-      path.quadraticBezierTo(midPoint2.dx, midPoint2.dy, edgePoint2.dx, edgePoint2.dy);
-      
+
+      path.quadraticBezierTo(
+        midPoint2.dx,
+        midPoint2.dy,
+        edgePoint2.dx,
+        edgePoint2.dy,
+      );
+
       // Arc along circle perimeter
       path.arcToPoint(
         edgePoint1,
@@ -170,22 +265,28 @@ class PetalIconPainter extends CustomPainter {
         clockwise: i < 2,
         largeArc: false,
       );
-      
+
       path.close();
       canvas.drawPath(path, petalPaint);
     }
 
     // Draw golden-brown four-pointed star in the center
     final starPaint = Paint()
-      ..color = const Color(0xFFD4A574) // Golden-brown color
+      ..color =
+          const Color(0xFFD4A574) // Golden-brown color
       ..style = PaintingStyle.fill;
 
     _drawFourPointedStar(canvas, center, radius * 0.25, starPaint);
   }
 
-  void _drawFourPointedStar(Canvas canvas, Offset center, double size, Paint paint) {
+  void _drawFourPointedStar(
+    Canvas canvas,
+    Offset center,
+    double size,
+    Paint paint,
+  ) {
     final path = Path();
-    
+
     // Draw four-pointed star (diamond shape)
     // Top point
     path.moveTo(center.dx, center.dy - size);
@@ -196,7 +297,7 @@ class PetalIconPainter extends CustomPainter {
     // Left point
     path.lineTo(center.dx - size * 0.7, center.dy);
     path.close();
-    
+
     canvas.drawPath(path, paint);
   }
 

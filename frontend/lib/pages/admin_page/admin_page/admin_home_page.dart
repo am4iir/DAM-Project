@@ -21,11 +21,26 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-    _loadTotalGroups();
-    _loadTotalUsers();
-    _loadTotalUsersApproved();
-    _loadTotalUsersPending();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() => _isLoading = true);
+    try {
+      await Future.wait([
+        _loadUserData(),
+        _loadTotalGroups(),
+        _loadTotalUsers(),
+        _loadTotalUsersApproved(),
+        _loadTotalUsersPending(),
+      ]);
+    } catch (e) {
+      debugPrint('❌ Error loading dashboard data: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   int _safeParseInt(dynamic value) {
@@ -112,20 +127,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _username = prefs.getString('username') ?? 'Admin';
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _username = prefs.getString('username') ?? 'Admin';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
 
     return Scaffold(
       backgroundColor: cs.background,
@@ -261,6 +273,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 _totalUsers.toString(),
                 'Total Users',
                 Colors.blue,
+                isLoading: _isLoading,
               ),
             ),
             const SizedBox(width: 12),
@@ -271,6 +284,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 _totalGroups.toString(),
                 'Groups',
                 Colors.green,
+                isLoading: _isLoading,
               ),
             ),
           ],
@@ -285,6 +299,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 _totalUsersPending.toString(),
                 'Pending',
                 Colors.orange,
+                isLoading: _isLoading,
               ),
             ),
             const SizedBox(width: 12),
@@ -295,6 +310,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 _totalUsersApproved.toString(),
                 'Approved',
                 Colors.teal,
+                isLoading: _isLoading,
               ),
             ),
           ],
@@ -308,8 +324,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
     IconData icon,
     String value,
     String label,
-    Color accentColor,
-  ) {
+    Color accentColor, {
+    bool isLoading = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -336,14 +353,35 @@ class _AdminHomePageState extends State<AdminHomePage> {
             child: Icon(icon, color: accentColor, size: 24),
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: cs.onSurface,
-            ),
-          ),
+          isLoading
+              ? Container(
+                  height: 28,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          accentColor.withOpacity(0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+                ),
           const SizedBox(height: 4),
           Text(
             label,

@@ -23,7 +23,7 @@ class _SinginPageState extends State<SinginPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      verifyToken();
+     
     });
   }
 
@@ -34,64 +34,7 @@ class _SinginPageState extends State<SinginPage> {
     super.dispose();
   }
 
-  void verifyToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token == null || token.isEmpty) return;
-
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await http
-          .post(
-            Uri.parse('http://10.0.2.2:3001/token/verify'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
-          )
-          .timeout(const Duration(seconds: 5));
-
-      if (!mounted) return;
-
-      if (response.statusCode == 401 || response.statusCode == 403) {
-        prefs.remove('token');
-        prefs.remove('username');
-        prefs.remove('email');
-        return;
-      }
-
-      if (response.statusCode != 200) {
-        throw Exception('Server error');
-      }
-
-      final data = jsonDecode(response.body);
-      final user = data['user'];
-
-      _isAccepted = user['is_accept'] == true || user['is_accept'] == 1;
-
-      if (!_isAccepted) {
-        context.go('/waiting');
-        return;
-      }
-
-      final roleId = user['id-role'] ?? user['id_role'];
-
-      if (roleId == 1) {
-        context.go('/admin');
-      } else if (roleId == 2) {
-        context.go('/teacher');
-      } else if (roleId == 3) {
-        context.go('/student');
-      }
-    } catch (e) {
-      // network / timeout → keep token
-      debugPrint('verifyToken error: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+  
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
