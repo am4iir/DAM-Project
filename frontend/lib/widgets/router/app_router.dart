@@ -8,6 +8,8 @@ import '../../pages/admin_page/admin_main.dart';
 import '../../pages/student_page/student_main.dart';
 import '../../pages/teacher_page/teacher_main.dart';
 import '../../pages/waiting_page/waiting_page.dart';
+import '../../pages/admin_page/admin_page/admin_group_details_page.dart';
+import '../../pages/admin_page/admin_page/admin_student_assignment_page.dart';
 
 CustomTransitionPage buildSlidePage(Widget child, GoRouterState state) {
   return CustomTransitionPage(
@@ -60,6 +62,19 @@ final GoRouter router = GoRouter(
       path: '/waiting',
       pageBuilder: (context, state) =>
           buildSlidePage(const WaitingPage(), state),
+    ),
+    GoRoute(
+      path: '/admin-group-details',
+      pageBuilder: (context, state) {
+        final group = state.extra as Map<String, dynamic>;
+        return buildSlidePage(AdminGroupDetailsPage(group: group), state);
+      },
+    ),
+    
+    GoRoute(
+      path: '/admin-assignment',
+      pageBuilder: (context, state) =>
+          buildSlidePage(const AdminStudentAssignmentPage(), state),
     ),
   ],
 );

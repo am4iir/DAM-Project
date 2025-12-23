@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:frontend/pages/admin_page/admin_page/admin_student_assignment_page.dart';
-import 'package:frontend/pages/admin_page/admin_page/admin_group_details_page.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminGroupMenegePage extends StatefulWidget {
   const AdminGroupMenegePage({super.key});
@@ -822,21 +822,9 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
                   ),
                   onSelected: (value) {
                     if (value == 'students') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AdminGroupDetailsPage(group: group),
-                        ),
-                      );
+                      context.push('/admin-group-details', extra: group);
                     } else if (value == 'add') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const AdminStudentAssignmentPage(),
-                        ),
-                      );
+                      context.push('/admin-assignment');
                     } else if (value == 'delete') {
                       _deleteGroup(group['id']);
                     }
