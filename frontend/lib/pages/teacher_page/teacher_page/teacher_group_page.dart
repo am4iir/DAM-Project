@@ -7,7 +7,7 @@ class TeacherGroupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(child: Column(children: [Text("Teacher Program Page")])),
+        child: Center(child: Column(children: [Text("Teacher groups page")])),
       ),
     );
   }

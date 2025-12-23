@@ -13,7 +13,7 @@ pool.on('connect', () => {
 });
 
 pool.on('error', (err) => {
-  console.error('❌ PostgreSQL client error:', err.stack);
+  console.error(' PostgreSQL client error:', err.stack);
 });
 
 module.exports = pool;

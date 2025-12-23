@@ -55,3 +55,10 @@ CREATE TABLE teacher_modules (
   CONSTRAINT uq_teacher_module
     UNIQUE (teacher_id, module_id)
 );
+
+CREATE TABLE student_groups (
+  id SERIAL PRIMARY KEY,
+  student_id INT REFERENCES users(id) ON DELETE CASCADE,
+  group_id INT REFERENCES groups(id) ON DELETE CASCADE,
+  UNIQUE (student_id, group_id)
+);

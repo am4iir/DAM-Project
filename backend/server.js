@@ -10,6 +10,7 @@ const groupsRoutes = require("./routes/admin/groups.js");
 
 const studentRoutes = require("./routes/admin/students.js");
 const moduleRoutes = require("./routes/admin/modules.js");
+const teacherRoutes = require("./routes/teacher/home.js");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ app.use("/admin", acceptRoutes);
 app.use("/admin/groups", groupsRoutes);
 app.use("/admin/students", studentRoutes);
 app.use("/admin/modules", moduleRoutes);
+app.use("/teacher", teacherRoutes);
 
 app.listen(port, Host, () => {
   console.log(`🟢 Server running on http://localhost:${port}`);

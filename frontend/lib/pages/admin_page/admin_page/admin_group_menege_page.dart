@@ -130,7 +130,7 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
         _moduleNameController.clear();
         _moduleLevelController.clear();
 
-        _refreshGroups();
+        _refreshModules();
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

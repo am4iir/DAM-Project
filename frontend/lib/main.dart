@@ -19,9 +19,10 @@ class MainApp extends StatelessWidget {
         colorScheme: const ColorScheme.light(
           primary: Color(0xFF00A8B5),
           secondary: Color(0xFF7B68EE),
-          background: Color(0xFFF5F7FA),
+          background: Color(0xFFF7F8FC),
           surface: Color(0xFFFFFFFF),
           error: Color(0xFFE57373),
+
         ),
       ),
     );
