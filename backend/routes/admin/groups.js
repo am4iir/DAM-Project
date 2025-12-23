@@ -3,18 +3,18 @@ const router = express.Router();
 const pool = require("../../config/db");
 
 router.get("/", async (req, res) => {
-    try {
-        const queryText = `SELECT * FROM groups ORDER BY created_at DESC`;
-        const result = await pool.query(queryText);
+  try {
+    const queryText = `SELECT * FROM groups ORDER BY created_at DESC`;
+    const result = await pool.query(queryText);
 
-        return res.status(200).json({
-            message: "success",
-            groups: result.rows,
-        });
-    } catch (err) {
-        console.error(" Database error:", err.message);
-        return res.status(500).json({ message: "Database error" });
-    }
+    return res.status(200).json({
+      message: "success",
+      groups: result.rows,
+    });
+  } catch (err) {
+    console.error(" Database error:", err.message);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
 
 router.post("/", async (req, res) => {
@@ -68,61 +68,64 @@ router.post("/", async (req, res) => {
 });
 
 
-// Delete a group
+
 router.delete("/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const queryText = `DELETE FROM groups WHERE id = $1`;
-        const result = await pool.query(queryText, [id]);
+    const queryText = `DELETE FROM groups WHERE id = $1`;
+    const result = await pool.query(queryText, [id]);
 
-        if (result.rowCount === 0) {
-            return res.status(404).json({ message: "Group not found" });
-        }
-
-        return res.status(200).json({ message: "Group deleted successfully" });
-    } catch (err) {
-        console.error(" Database error:", err.message);
-        return res.status(500).json({ message: "Database error" });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Group not found" });
     }
+
+    return res.status(200).json({ message: "Group deleted successfully" });
+  } catch (err) {
+    console.error(" Database error:", err.message);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
 
 
 router.get("/:id/students", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const queryText = `
-            SELECT  users.id,users.username, users.email 
-           FROM users
-           JOIN student_groups
-           ON users.id = student_groups.student_id
-            WHERE  student_groups.group_id = $1 AND id_role = 3 AND is_accept = true
-            ORDER BY username ASC
+  try {
+    const { id } = req.params;
+    const queryText = `
+            SELECT u.id, u.username, u.email, r.role_name
+            FROM users u
+            JOIN roles r ON u.id_role = r.id_role
+            LEFT JOIN student_groups sg ON u.id = sg.student_id
+            LEFT JOIN teacher_groups tg ON u.id = tg.teacher_id
+            WHERE (sg.group_id = $1 OR tg.group_id = $1)
+              AND u.is_accept = true
+            ORDER BY r.role_name DESC, u.username ASC
         `;
-        const result = await pool.query(queryText, [id]);
+    const result = await pool.query(queryText, [id]);
 
-        return res.status(200).json({
-            message: "success",
-            students: result.rows,
-        });
-    } catch (err) {
-        console.error(" Database error:", err.message);
-        return res.status(500).json({ message: "Database error" });
-    }
+    return res.status(200).json({
+      message: "success",
+      students: result.rows,
+    });
+  } catch (err) {
+    console.error(" Database error:", err.message);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
-router.get("/number-group", async (req, res) => {
-    try {
-        
-        const result = await pool.query(`SELECT count(*) FROM groups`);
-        
-        return res.status(200).json({
-            totalGroups: result.rows[0].count,
-        });
 
-    } catch (error) {
-        console.error("❌ Database error:", error.message);
-        return res.status(500).json({ message: "Database error" });
-    }
+router.get("/number-group", async (req, res) => {
+  try {
+
+    const result = await pool.query(`SELECT count(*) FROM groups`);
+
+    return res.status(200).json({
+      totalGroups: result.rows[0].count,
+    });
+
+  } catch (error) {
+    console.error("❌ Database error:", error.message);
+    return res.status(500).json({ message: "Database error" });
+  }
 });
 router.get("/numberUsers", async (req, res) => {
   try {
@@ -144,43 +147,43 @@ router.get("/numberUsers", async (req, res) => {
   }
 });
 router.get("/numberUsersPending", async (req, res) => {
-    try {
-      const query = `
+  try {
+    const query = `
         SELECT
           COUNT(*) FILTER (WHERE is_accept = false and id_role = 3) AS total_users
         FROM users
       `;
 
-      const result = await pool.query(query);
+    const result = await pool.query(query);
 
-      return res.status(200).json({
-        numberOfUsersPending: result.rows[0].total_users,
-      });
+    return res.status(200).json({
+      numberOfUsersPending: result.rows[0].total_users,
+    });
 
-    } catch (error) {
-      console.error("❌ Database error:", error);
-      return res.status(500).json({ message: error.message });
-    }
-  });
+  } catch (error) {
+    console.error("❌ Database error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+});
 router.get("/numberUsersApproved", async (req, res) => {
-    try {
-      const query = `
+  try {
+    const query = `
         SELECT
           COUNT(*) FILTER (WHERE is_accept = true and id_role = 3) AS total_users
         FROM users
       `;
 
-      const result = await pool.query(query);
+    const result = await pool.query(query);
 
-      return res.status(200).json({
-        numberOfUsersApproved: result.rows[0].total_users,
-      });
+    return res.status(200).json({
+      numberOfUsersApproved: result.rows[0].total_users,
+    });
 
-    } catch (error) {
-      console.error("❌ Database error:", error);
-      return res.status(500).json({ message: error.message });
-    }
-  });
+  } catch (error) {
+    console.error("❌ Database error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+});
 
 
 module.exports = router;

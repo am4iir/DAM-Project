@@ -38,25 +38,34 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
     }
   }
 
-  Future<void> _deleteStudent(int studentId) async {
+  Future<void> _unassignMember(int userId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$_baseUrl2/delete/$studentId'),
+        Uri.parse('$_baseUrl2/delete/$userId'),
       );
 
       if (response.statusCode == 200) {
         setState(() {
           _studentsFuture = _fetchStudents();
         });
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Member unassigned')));
+        }
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Delete failed')));
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Action failed')));
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Network error')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Network error')));
+      }
     }
   }
 
@@ -88,7 +97,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: cs.error),
                   const SizedBox(height: 16),
-                  const Text('Error loading students'),
+                  const Text('Error loading members'),
                   TextButton(
                     onPressed: () =>
                         setState(() => _studentsFuture = _fetchStudents()),
@@ -99,9 +108,19 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
             );
           }
 
-          final students = snapshot.data ?? [];
+          final members = snapshot.data ?? [];
+          final teachers = members
+              .where(
+                (m) => m['role_name']?.toString().toLowerCase() == 'teacher',
+              )
+              .toList();
+          final students = members
+              .where(
+                (m) => m['role_name']?.toString().toLowerCase() == 'student',
+              )
+              .toList();
 
-          if (students.isEmpty) {
+          if (members.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +132,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No students in this group yet',
+                    'No members in this group yet',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -123,43 +142,143 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: students.length,
-            itemBuilder: (context, index) {
-              final student = students[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(19),
-                  side: BorderSide(color: cs.outline.withOpacity(0.8)),
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: cs.primaryContainer,
+          return CustomScrollView(
+            slivers: [
+              if (teachers.isNotEmpty) ...[
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Text(
-                      student['username'][0].toUpperCase(),
+                      'TEACHERS',
                       style: TextStyle(
-                        color: cs.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        color: Colors.orange,
                       ),
                     ),
                   ),
-                  title: Text(
-                    student['username'],
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(student['email']),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete, color: cs.error),
-                    onPressed: () => _deleteStudent(student['id']),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _MemberCard(
+                      member: teachers[index],
+                      onDelete: () => _unassignMember(teachers[index]['id']),
+                    ),
+                    childCount: teachers.length,
                   ),
                 ),
-              );
-            },
+              ],
+              if (students.isNotEmpty) ...[
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    child: Text(
+                      'STUDENTS',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _MemberCard(
+                      member: students[index],
+                      onDelete: () => _unassignMember(students[index]['id']),
+                    ),
+                    childCount: students.length,
+                  ),
+                ),
+              ],
+              const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+            ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _MemberCard extends StatelessWidget {
+  final dynamic member;
+  final VoidCallback onDelete;
+
+  const _MemberCard({required this.member, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: BorderSide(color: cs.outline.withOpacity(0.2)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: CircleAvatar(
+          backgroundColor: cs.primaryContainer,
+          child: Text(
+            member['username']?[0].toUpperCase() ?? '?',
+            style: TextStyle(
+              color: cs.onPrimaryContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        title: Row(
+          children: [
+            Text(
+              member['username'] ?? 'Unknown',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(width: 8),
+            _RoleBadge(role: member['role_name'] ?? '', cs: cs),
+          ],
+        ),
+        subtitle: Text(member['email'] ?? ''),
+        trailing: IconButton(
+          icon: Icon(Icons.close, color: cs.error.withOpacity(0.7)),
+          onPressed: onDelete,
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleBadge extends StatelessWidget {
+  final String role;
+  final ColorScheme cs;
+
+  const _RoleBadge({required this.role, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    if (role.isEmpty) return const SizedBox.shrink();
+
+    final isTeacher = role.toLowerCase() == 'teacher';
+    final color = isTeacher ? Colors.orange : Colors.blue;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        role.toUpperCase(),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
       ),
     );
   }

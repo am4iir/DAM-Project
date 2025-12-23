@@ -24,6 +24,12 @@ CREATE TABLE groups (
     CHECK (max_students > 0),
   created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE student_groups (
+  id SERIAL PRIMARY KEY,
+  student_id INT REFERENCES users(id) ON DELETE CASCADE,
+  group_id INT REFERENCES groups(id) ON DELETE CASCADE,
+  UNIQUE (student_id, group_id)
+);
 CREATE TABLE teacher_groups (
   id SERIAL PRIMARY KEY,
   teacher_id INT REFERENCES users(id) ON DELETE CASCADE,

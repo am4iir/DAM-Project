@@ -165,7 +165,6 @@ class _StudentCartPageState extends State<StudentCartPage>
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Background Gradient
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -179,7 +178,6 @@ class _StudentCartPageState extends State<StudentCartPage>
                 ),
               ),
             ),
-            // Decorative Pattern
             Positioned(
               top: -80,
               right: -80,
@@ -208,10 +206,8 @@ class _StudentCartPageState extends State<StudentCartPage>
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // University Header
                   Row(
                     children: [
-                      // University Logo
                       Container(
                         width: 55,
                         height: 55,
