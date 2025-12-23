@@ -22,6 +22,7 @@ class MainApp extends StatelessWidget {
           background: Color(0xFFF7F8FC),
           surface: Color(0xFFFFFFFF),
           error: Color(0xFFE57373),
+
         ),
       ),
     );
