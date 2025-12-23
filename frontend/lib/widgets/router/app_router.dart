@@ -9,11 +9,7 @@ import '../../pages/student_page/student_main.dart';
 import '../../pages/teacher_page/teacher_main.dart';
 import '../../pages/waiting_page/waiting_page.dart';
 
-
-CustomTransitionPage buildSlidePage(
-  Widget child,
-  GoRouterState state,
-) {
+CustomTransitionPage buildSlidePage(Widget child, GoRouterState state) {
   return CustomTransitionPage(
     key: state.pageKey,
     child: child,
@@ -25,15 +21,11 @@ CustomTransitionPage buildSlidePage(
         end: Offset.zero,
       ).chain(CurveTween(curve: Curves.easeInOut));
 
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-      );
+      return SlideTransition(position: animation.drive(tween), child: child);
     },
   );
 }
 
-/// 🚦 App Router
 final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: [
@@ -54,18 +46,15 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/admin',
-      pageBuilder: (context, state) =>
-          buildSlidePage(const Admin(), state),
+      pageBuilder: (context, state) => buildSlidePage(const Admin(), state),
     ),
     GoRoute(
       path: '/teacher',
-      pageBuilder: (context, state) =>
-          buildSlidePage(const Teacher(), state),
+      pageBuilder: (context, state) => buildSlidePage(const Teacher(), state),
     ),
     GoRoute(
       path: '/student',
-      pageBuilder: (context, state) =>
-          buildSlidePage(const Student(), state),
+      pageBuilder: (context, state) => buildSlidePage(const Student(), state),
     ),
     GoRoute(
       path: '/waiting',

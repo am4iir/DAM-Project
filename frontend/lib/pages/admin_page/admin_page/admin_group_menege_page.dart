@@ -13,6 +13,7 @@ class AdminGroupMenegePage extends StatefulWidget {
 
 class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
   late Future<List<dynamic>> _groupsFuture;
+  late Future<List<dynamic>> _modulesFuture;
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _levelController = TextEditingController();
   final TextEditingController _maxStudentsController = TextEditingController();
@@ -36,6 +37,7 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
   void initState() {
     super.initState();
     _refreshGroups();
+    _refreshModules();
   }
 
   @override
@@ -52,6 +54,32 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
     setState(() {
       _groupsFuture = _fetchGroups();
     });
+  }
+
+  void _refreshModules() {
+    setState(() {
+      _modulesFuture = _fetchModules();
+    });
+  }
+
+  Future<List<dynamic>> _fetchModules() async {
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:3001/admin/modules/all"),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      final decoded = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        return decoded['modules'] ?? [];
+      } else {
+        final message = decoded['message'] ?? 'Unknown server error';
+        throw Exception(message);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   Future<List<dynamic>> _fetchGroups() async {
@@ -110,9 +138,9 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
             backgroundColor: Colors.green,
           ),
         );
-      }
-      else {
+      } else {
         final message = decoded['message'] ?? 'Failed to create module';
+        Navigator.pop(context);
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -121,6 +149,7 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
       }
     } catch (e) {
       if (!mounted) return;
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Network error. Please try again.'),
@@ -135,7 +164,6 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
     final level = _levelController.text.trim();
     final maxStr = _maxStudentsController.text.trim();
 
- 
     if (name.isEmpty || level.isEmpty || maxStr.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -177,11 +205,9 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
             backgroundColor: Colors.green,
           ),
         );
-      }
-     
-      else {
+      } else {
         final message = decoded['message'] ?? 'Failed to create group';
-
+        Navigator.pop(context);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -506,24 +532,30 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                 Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: cs.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                '${groups.length} modules',
-                                style: TextStyle(
-                                  color: cs.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                FutureBuilder<List<dynamic>>(
+                                  future: _modulesFuture,
+                                  builder: (context, moduleSnapshot) {
+                                    final modules = moduleSnapshot.data ?? [];
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: cs.primary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        '${modules.length} modules',
+                                        style: TextStyle(
+                                          color: cs.primary,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                            ),
                               ],
                             ),
                           ],
@@ -760,8 +792,13 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
                             ),
                           ),
                           const SizedBox(width: 14),
+                          Icon(
+                            Icons.person_outline,
+                            size: 14,
+                            color: cs.onSurface.withOpacity(0.5),
+                          ),
                           Text(
-                            'max students: ' + maxStudents.toString(),
+                            maxStudents.toString(),
                             style: TextStyle(
                               fontSize: 12,
                               color: cs.onSurface.withOpacity(0.8),
