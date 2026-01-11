@@ -65,13 +65,7 @@ class _ProfileViewState extends State<ProfileView>
               opacity: _fadeAnimation,
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: isDark
-                        ? [cs.surface, cs.surface.withOpacity(0.95)]
-                        : [Colors.grey.shade50, Colors.white],
-                  ),
+                 color: cs.background,
                 ),
                 child: Column(
                   children: [
