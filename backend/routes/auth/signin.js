@@ -9,7 +9,7 @@ router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    
+
     if (!email || !password) {
       return res.status(400).json({
         message: "Email and password are required",
@@ -46,12 +46,24 @@ router.post("/signin", async (req, res) => {
       { expiresIn: "100h" }
     );
 
+    let groupId = null;
+    if (user.id_role === 3) {
+      const groupResult = await pool.query(
+        "SELECT group_id FROM student_groups WHERE student_id = $1",
+        [user.id]
+      );
+      if (groupResult.rows.length > 0) {
+        groupId = groupResult.rows[0].group_id;
+      }
+    }
+
     const { password_hash, ...safeUser } = user;
 
     res.status(200).json({
       message: "success",
       user: safeUser,
       token: token,
+      group_id: groupId,
     });
   } catch (error) {
     console.error("Signin error:", error);

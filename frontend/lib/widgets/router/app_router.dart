@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/admin_page/admin_page/admin_program_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../pages/splash_screen_page/splash_screen.dart';
@@ -70,7 +71,13 @@ final GoRouter router = GoRouter(
         return buildSlidePage(AdminGroupDetailsPage(group: group), state);
       },
     ),
-    
+    GoRoute(
+      path: '/admin-program',
+      pageBuilder: (context, state) {
+        final group = state.extra as Map<String, dynamic>?;
+        return buildSlidePage(AdminProgramPage(group: group), state);
+      },
+    ),
     GoRoute(
       path: '/admin-assignment',
       pageBuilder: (context, state) =>

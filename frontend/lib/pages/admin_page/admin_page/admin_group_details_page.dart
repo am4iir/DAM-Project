@@ -15,6 +15,23 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
   final String _baseUrl = 'http://10.0.2.2:3001/admin/groups';
   final String _baseUrl2 = 'http://10.0.2.2:3001/admin/students';
 
+  final List<String> _days = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+  ];
+
+  // Pre-calculated slots for 1.3h (78 min) sessions starting from 08:30
+  final List<Map<String, String>> _timeSlots = [
+    {'start': '08:30', 'end': '09:48'},
+    {'start': '10:00', 'end': '11:18'},
+    {'start': '11:30', 'end': '12:48'},
+    {'start': '13:00', 'end': '14:18'},
+    {'start': '14:30', 'end': '15:48'},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +101,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
         elevation: 0,
         foregroundColor: cs.onSurface,
       ),
+
       body: FutureBuilder<List<dynamic>>(
         future: _studentsFuture,
         builder: (context, snapshot) {
@@ -91,24 +109,11 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: cs.error),
-                  const SizedBox(height: 16),
-                  const Text('Error loading members'),
-                  TextButton(
-                    onPressed: () =>
-                        setState(() => _studentsFuture = _fetchStudents()),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return Center(child: Text('Error loading data: ${snapshot.error}'));
           }
 
           final members = snapshot.data ?? [];
+
           final teachers = members
               .where(
                 (m) => m['role_name']?.toString().toLowerCase() == 'teacher',
@@ -120,34 +125,12 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
               )
               .toList();
 
-          if (members.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.person_off_outlined,
-                    size: 80,
-                    color: cs.onSurfaceVariant.withOpacity(0.2),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No members in this group yet',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
           return CustomScrollView(
             slivers: [
               if (teachers.isNotEmpty) ...[
                 const SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
                       'TEACHERS',
                       style: TextStyle(
@@ -194,7 +177,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                   ),
                 ),
               ],
-              const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+              const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
             ],
           );
         },
@@ -278,6 +261,55 @@ class _RoleBadge extends StatelessWidget {
           fontSize: 10,
           fontWeight: FontWeight.bold,
           color: color,
+        ),
+      ),
+    );
+  }
+}
+
+class _SessionCard extends StatelessWidget {
+  final dynamic session;
+  const _SessionCard({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.blueAccent.withOpacity(0.2)),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.timer_outlined, color: Colors.blueAccent),
+        ),
+        title: Text(
+          session['module_name'] ?? 'Session',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          '${session['day']} • ${session['start_time']} - ${session['end_time']}',
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Text(
+            '1.3h',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

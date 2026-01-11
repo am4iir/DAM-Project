@@ -22,9 +22,7 @@ class _SinginPageState extends State<SinginPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-     
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
@@ -33,8 +31,6 @@ class _SinginPageState extends State<SinginPage> {
     passwordController.dispose();
     super.dispose();
   }
-
-  
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
@@ -93,6 +89,11 @@ class _SinginPageState extends State<SinginPage> {
       prefs.setString('username', user['username'] ?? '');
       prefs.setString('email', user['email'] ?? '');
       prefs.setString('role', user['role'] ?? '');
+      prefs.setInt('id', user['id']);
+
+      if (data['group_id'] != null) {
+        prefs.setInt('group_id', data['group_id']);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

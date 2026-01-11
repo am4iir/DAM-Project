@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:frontend/pages/admin_page/admin_page/admin_student_assignment_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminGroupMenegePage extends StatefulWidget {
@@ -19,6 +18,8 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
   final TextEditingController _maxStudentsController = TextEditingController();
   final TextEditingController _moduleNameController = TextEditingController();
   final TextEditingController _moduleLevelController = TextEditingController();
+  List<dynamic> _allTeachers = [];
+  int? _selectedTeacherIdForModule;
 
   final String _baseUrl = 'http://10.0.2.2:3001/admin/groups';
 
@@ -38,6 +39,23 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
     super.initState();
     _refreshGroups();
     _refreshModules();
+    _fetchTeachers();
+  }
+
+  Future<void> _fetchTeachers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3001/admin/programs/group/0/teachers'),
+      );
+      // Using /group/0/teachers will trigger the fallback to all teachers based on the backend change
+      if (response.statusCode == 200) {
+        setState(() {
+          _allTeachers = json.decode(response.body)['teachers'] ?? [];
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching teachers: $e');
+    }
   }
 
   @override
@@ -117,7 +135,11 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
       final response = await http.post(
         Uri.parse("http://10.0.2.2:3001/admin/modules/create"),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'name': name, 'level': level}),
+        body: json.encode({
+          'name': name,
+          'level': level,
+          'teacherId': _selectedTeacherIdForModule,
+        }),
       );
 
       final decoded = json.decode(response.body);
@@ -376,29 +398,61 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
             ),
           ],
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogTextField(
-                controller: _moduleNameController,
-                hint: 'Module Name',
-                icon: Icons.bookmark_border,
-                cs: cs,
-              ),
-              const SizedBox(height: 12),
-              _buildDialogTextField(
-                controller: _moduleLevelController,
-                hint: 'Level (e.g. L3)',
-                icon: Icons.grade,
-                cs: cs,
-              ),
-            ],
+        content: StatefulBuilder(
+          builder: (context, setDialogState) => SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDialogTextField(
+                  controller: _moduleNameController,
+                  hint: 'Module Name',
+                  icon: Icons.bookmark_border,
+                  cs: cs,
+                ),
+                const SizedBox(height: 12),
+                _buildDialogTextField(
+                  controller: _moduleLevelController,
+                  hint: 'Level (e.g. L3)',
+                  icon: Icons.grade,
+                  cs: cs,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int>(
+                  decoration: InputDecoration(
+                    hintText: 'Select Teacher',
+                    prefixIcon: const Icon(Icons.person, color: Colors.purple),
+                    filled: true,
+                    fillColor: cs.background,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: cs.outline.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  value: _selectedTeacherIdForModule,
+                  items: _allTeachers.map((t) {
+                    return DropdownMenuItem<int>(
+                      value: t['id'],
+                      child: Text(t['username']),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setDialogState(() {
+                      _selectedTeacherIdForModule = val;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              setState(() => _selectedTeacherIdForModule = null);
+              Navigator.pop(context);
+            },
             child: Text(
               'Cancel',
               style: TextStyle(color: cs.onSurface.withOpacity(0.6)),
@@ -827,6 +881,8 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
                       context.push('/admin-assignment');
                     } else if (value == 'delete') {
                       _deleteGroup(group['id']);
+                    } else if (value == 'program') {
+                      context.push('/admin-program', extra: group);
                     }
                   },
                   itemBuilder: (context) => [
@@ -859,7 +915,7 @@ class _AdminGroupMenegePageState extends State<AdminGroupMenegePage> {
                       ),
                     ),
                     PopupMenuItem(
-                      value: 'Program',
+                      value: 'program',
                       child: Row(
                         children: [
                           Icon(
