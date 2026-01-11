@@ -298,7 +298,7 @@ class _SingupPageState extends State<SingupPage>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Have an account? ',
+                        'Have an account?  ',
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -312,7 +312,7 @@ class _SingupPageState extends State<SingupPage>
                           context.go('/signin');
                         },
                         child: Text(
-                          'Login',
+                          'Sing I  n',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 16,

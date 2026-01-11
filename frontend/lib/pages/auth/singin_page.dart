@@ -248,8 +248,8 @@ class _SinginPageState extends State<SinginPage> {
                           ),
                           child: _isLoading
                               ? SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                  height: 15,
+                                  width: 15,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -272,7 +272,7 @@ class _SinginPageState extends State<SinginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account? ",
+                            "Don't have an account?",
                             style: TextStyle(
                               color: Theme.of(
                                 context,
@@ -296,7 +296,7 @@ class _SinginPageState extends State<SinginPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: size.height * 0.05),
+                      SizedBox(height: size.height * 0.01),
                     ],
                   ),
                 ),

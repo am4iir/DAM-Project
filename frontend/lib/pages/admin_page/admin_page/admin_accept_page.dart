@@ -173,7 +173,7 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                                   BorderRadius.circular(16),
                               borderSide: BorderSide(
                                 color: cs.outline
-                                    .withOpacity(0.2),
+                                    .withOpacity(0.1),
                               ),
                             ),
                           ),
@@ -267,7 +267,7 @@ class _HeaderCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
-          colors: [cs.primary, cs.primary.withOpacity(0.7)],
+          colors: [cs.primary, cs.primary.withOpacity(0.5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -366,7 +366,7 @@ class _UserRow extends StatelessWidget {
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
         border:
-            Border.all(color: cs.outline.withOpacity(0.9)),
+            Border.all(color: cs.outline.withOpacity(0.4)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
