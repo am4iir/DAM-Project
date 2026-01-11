@@ -98,7 +98,6 @@ class _StudentCartPageState extends State<StudentCartPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                
                 Text(
                   'Tap the card to flip',
                   style: TextStyle(
@@ -108,7 +107,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Animated Card
+
                 GestureDetector(
                   onTap: _toggleCard,
                   child: AnimatedBuilder(
@@ -310,7 +309,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Student Full Name - Centered and Prominent
+
                   Text(
                     userName ?? 'Loading...',
                     style: const TextStyle(
@@ -322,7 +321,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  // Email Badge
+
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -346,7 +345,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Info Cards Row
+
                   Row(
                     children: [
                       Expanded(
@@ -367,7 +366,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ],
                   ),
                   const Spacer(),
-                  // Bottom Section - Faculty & Academic Year
+
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -398,7 +397,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ),
                   ),
                   const SizedBox(height: 14),
-                  // Academic Year & Validity
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -538,7 +537,6 @@ class _StudentCartPageState extends State<StudentCartPage>
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Background
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -552,7 +550,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                 ),
               ),
             ),
-            // Decorative circles
+
             Positioned(
               top: -40,
               left: -40,
@@ -577,7 +575,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                 ),
               ),
             ),
-            // Magnetic Stripe
+
             Positioned(
               top: 30,
               left: 0,
@@ -596,13 +594,13 @@ class _StudentCartPageState extends State<StudentCartPage>
                 ),
               ),
             ),
-            // Content
+
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   const SizedBox(height: 95),
-                  // Personal Information Section
+
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -670,7 +668,7 @@ class _StudentCartPageState extends State<StudentCartPage>
                     ),
                   ),
                   const SizedBox(height: 50),
-                  // Emergency Contact
+
                   Expanded(
                     child: Container(
                       height: 110,
