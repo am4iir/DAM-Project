@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/student_page/student_page/student_profile_page.dart';
-import 'package:frontend/pages/student_page/student_page/student_program_page.dart';
 import 'package:frontend/widgets/Studentpages/groupandsection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/widgets/Studentpages/Examgrades.dart';
 import 'package:frontend/widgets/Studentpages/AssessmentPage.dart';
 import 'package:frontend/widgets/Studentpages/ExamsSchedule.dart';
-import 'package:go_router/go_router.dart';
+import 'package:frontend/widgets/Studentpages/student_home_widgets.dart';
+import 'package:frontend/widgets/Studentpages/student_drawer.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -88,7 +87,14 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context, colorScheme),
+      drawer: buildStudentDrawer(
+        context,
+        colorScheme,
+        userName: userName,
+        email: email,
+        firstLetter: firstLetter,
+        secondLetter: secondLetter,
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +140,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard(
+                    child: buildStatCard(
                       context,
                       icon: Icons.assignment_outlined,
                       title: 'Assignments',
@@ -144,7 +150,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildStatCard(
+                    child: buildStatCard(
                       context,
                       icon: Icons.event_outlined,
                       title: 'Exams',
@@ -205,7 +211,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 crossAxisSpacing: 16,
                 childAspectRatio: 1.0,
                 children: [
-                  _buildServiceCard(
+                  buildServiceCard(
                     context,
                     icon: Icons.groups_outlined,
                     title: 'Group & Section',
@@ -219,7 +225,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       );
                     },
                   ),
-                  _buildServiceCard(
+                  buildServiceCard(
                     context,
                     icon: Icons.school_outlined,
                     title: 'Exam Grades',
@@ -231,7 +237,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       );
                     },
                   ),
-                  _buildServiceCard(
+                  buildServiceCard(
                     context,
                     icon: Icons.calendar_month_outlined,
                     title: 'Exam Schedule',
@@ -245,7 +251,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       );
                     },
                   ),
-                  _buildServiceCard(
+                  buildServiceCard(
                     context,
                     icon: Icons.assessment_outlined,
                     title: 'Assessment',
@@ -265,316 +271,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
             const SizedBox(height: 30),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context, ColorScheme colorScheme) {
-    return Drawer(
-      backgroundColor: colorScheme.surface,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          // Drawer Header
-          Container(
-            height: 200,
-            decoration: BoxDecoration(color: colorScheme.primary),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: colorScheme.onPrimary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${firstLetter ?? '?'}${secondLetter ?? ''}',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  userName ?? 'User',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email ?? 'email@example.com',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onPrimary.withOpacity(0.85),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Menu Items
-          _buildDrawerItem(
-            context,
-            icon: Icons.home_outlined,
-            title: 'Home',
-            isSelected: true,
-            onTap: () => Navigator.pop(context),
-          ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.calendar_today_outlined,
-            title: 'Program',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StudentProgramPage(),
-                ),
-              );
-            },
-          ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.person_outline,
-            title: 'Profile',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StudentProfilePage(),
-                ),
-              );
-            },
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Divider(color: colorScheme.outline),
-          ),
-
-          _buildDrawerItem(
-            context,
-            icon: Icons.logout_outlined,
-            title: 'Logout',
-            isLogout: true,
-            onTap: () {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  title: Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  content: Text(
-                    'Are you sure you want to logout?',
-                    style: TextStyle(color: colorScheme.onSurface),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        prefs.remove('token');
-                        prefs.remove('username');
-                        prefs.remove('email');
-                        context.go('/signin');
-                      },
-                      child: Text(
-                        'Logout',
-                        style: TextStyle(
-                          color: colorScheme.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    bool isSelected = false,
-    bool isLogout = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final color = isLogout ? colorScheme.error : colorScheme.primary;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? colorScheme.primary.withOpacity(0.1)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isSelected
-              ? colorScheme.primary
-              : (isLogout ? colorScheme.error : colorScheme.onSurfaceVariant),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isLogout ? colorScheme.error : colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          ),
-        ),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String value,
-    required bool isPrimary,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = isPrimary ? colorScheme.primary : colorScheme.secondary;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: cardColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required bool isPrimary,
-    required VoidCallback onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = isPrimary ? colorScheme.primary : colorScheme.secondary;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: cardColor.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: Colors.white, size: 32),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
         ),
       ),
     );

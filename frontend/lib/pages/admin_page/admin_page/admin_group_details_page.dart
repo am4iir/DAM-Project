@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:frontend/widgets/Adminpages/admin_group_widgets.dart';
 
 class AdminGroupDetailsPage extends StatefulWidget {
   final Map<String, dynamic> group;
@@ -144,7 +145,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MemberCard(
+                    (context, index) => AdminMemberCard(
                       member: teachers[index],
                       onDelete: () => _unassignMember(teachers[index]['id']),
                     ),
@@ -169,7 +170,7 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MemberCard(
+                    (context, index) => AdminMemberCard(
                       member: students[index],
                       onDelete: () => _unassignMember(students[index]['id']),
                     ),
@@ -181,136 +182,6 @@ class _AdminGroupDetailsPageState extends State<AdminGroupDetailsPage> {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _MemberCard extends StatelessWidget {
-  final dynamic member;
-  final VoidCallback onDelete;
-
-  const _MemberCard({required this.member, required this.onDelete});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(color: cs.outline.withOpacity(0.2)),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: CircleAvatar(
-          backgroundColor: cs.primaryContainer,
-          child: Text(
-            member['username']?[0].toUpperCase() ?? '?',
-            style: TextStyle(
-              color: cs.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        title: Row(
-          children: [
-            Text(
-              member['username'] ?? 'Unknown',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(width: 8),
-            _RoleBadge(role: member['role_name'] ?? '', cs: cs),
-          ],
-        ),
-        subtitle: Text(member['email'] ?? ''),
-        trailing: IconButton(
-          icon: Icon(Icons.close, color: cs.error.withOpacity(0.7)),
-          onPressed: onDelete,
-        ),
-      ),
-    );
-  }
-}
-
-class _RoleBadge extends StatelessWidget {
-  final String role;
-  final ColorScheme cs;
-
-  const _RoleBadge({required this.role, required this.cs});
-
-  @override
-  Widget build(BuildContext context) {
-    if (role.isEmpty) return const SizedBox.shrink();
-
-    final isTeacher = role.toLowerCase() == 'teacher';
-    final color = isTeacher ? Colors.orange : Colors.blue;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        role.toUpperCase(),
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      ),
-    );
-  }
-}
-
-class _SessionCard extends StatelessWidget {
-  final dynamic session;
-  const _SessionCard({required this.session});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.blueAccent.withOpacity(0.2)),
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blueAccent.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.timer_outlined, color: Colors.blueAccent),
-        ),
-        title: Text(
-          session['module_name'] ?? 'Session',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          '${session['day']} • ${session['start_time']} - ${session['end_time']}',
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.blueAccent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Text(
-            '1.3h',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
       ),
     );
   }

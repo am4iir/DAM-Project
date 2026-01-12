@@ -312,7 +312,7 @@ class _SingupPageState extends State<SingupPage>
                           context.go('/signin');
                         },
                         child: Text(
-                          'Sing I  n',
+                          'Sing In',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 16,

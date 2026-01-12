@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:frontend/widgets/Adminpages/admin_accept_widgets.dart';
 
 class AdminAcceptPage extends StatefulWidget {
   const AdminAcceptPage({super.key});
@@ -76,8 +77,7 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Failed to ${accept ? 'accept' : 'reject'} user'),
+            content: Text('Failed to ${accept ? 'accept' : 'reject'} user'),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,25 +111,22 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                 'User Requests',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-             
             ),
 
-            
             SliverToBoxAdapter(
               child: FutureBuilder<List<dynamic>>(
                 future: _usersFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const _LoadingState();
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const AdminAcceptLoadingState();
                   }
 
                   if (snapshot.hasError) {
-                    return _ErrorState(onRetry: _refreshUsers);
+                    return AdminAcceptErrorState(onRetry: _refreshUsers);
                   }
 
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const _EmptyState();
+                    return const AdminAcceptEmptyState();
                   }
 
                   final users = snapshot.data!;
@@ -148,12 +145,11 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _HeaderCard(totalUsers: filteredUsers.length),
+                      AdminAcceptHeaderCard(totalUsers: filteredUsers.length),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                         child: TextField(
                           controller: _searchController,
                           onChanged: (value) {
@@ -162,31 +158,28 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                             });
                           },
                           decoration: InputDecoration(
-                            hintText:
-                                'Search by username or email',
-                            prefixIcon:
-                                const Icon(Icons.search),
+                            hintText: 'Search by username or email',
+                            prefixIcon: const Icon(Icons.search),
                             filled: true,
                             fillColor: cs.surface,
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(16),
                               borderSide: BorderSide(
-                                color: cs.outline
-                                    .withOpacity(0.1),
+                                color: cs.outline.withOpacity(0.1),
                               ),
                             ),
                           ),
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'All Requests',
@@ -197,19 +190,19 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: cs.primary.withOpacity(0.1),
-                                borderRadius:
-                                    BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 '${filteredUsers.length} users',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: cs.primary,
-                                  fontWeight:
-                                      FontWeight.w600,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -217,26 +210,20 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       ListView.separated(
                         shrinkWrap: true,
-                        physics:
-                            const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(
-                            16, 8, 16, 16),
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                         itemCount: filteredUsers.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 12),
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final user = filteredUsers[index];
-                          return _UserRow(
+                          return AdminUserRow(
                             user: user,
-                            onAccept: () =>
-                                _handleUserAction(
-                                    user['id'], true),
+                            onAccept: () => _handleUserAction(user['id'], true),
                             onReject: () =>
-                                _handleUserAction(
-                                    user['id'], false),
+                                _handleUserAction(user['id'], false),
                           );
                         },
                       ),
@@ -247,248 +234,6 @@ class _AdminAcceptPageState extends State<AdminAcceptPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-
-class _HeaderCard extends StatelessWidget {
-  final int totalUsers;
-
-  const _HeaderCard({required this.totalUsers});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [cs.primary, cs.primary.withOpacity(0.5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Manage Requests',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Review and approve new users',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius:
-                        BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$totalUsers Requests',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.25),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.group,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserRow extends StatelessWidget {
-  final Map<String, dynamic> user;
-  final VoidCallback onAccept;
-  final VoidCallback onReject;
-
-  const _UserRow({
-    required this.user,
-    required this.onAccept,
-    required this.onReject,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final username = user['username'] ?? 'Unknown';
-    final email = user['email'] ?? '';
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: cs.outline.withOpacity(0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor:
-                cs.primary.withOpacity(0.1),
-            child: Text(
-              username[0].toUpperCase(),
-              style: TextStyle(
-                color: cs.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  username,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: TextStyle(
-                    color: cs.onSurface
-                        .withOpacity(0.6),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: onReject,
-            icon: const Icon(Icons.close),
-            color: Colors.redAccent,
-          ),
-          IconButton(
-            onPressed: onAccept,
-            icon: const Icon(Icons.check),
-            color: Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _LoadingState extends StatelessWidget {
-  const _LoadingState();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 80),
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 100),
-      child: Column(
-        children: const [
-          Icon(Icons.check_circle_outline,
-              size: 72, color: Colors.grey),
-          SizedBox(height: 12),
-          Text(
-            'No pending requests',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 80),
-      child: Column(
-        children: [
-          const Icon(Icons.error_outline,
-              size: 64, color: Colors.redAccent),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
-        ],
       ),
     );
   }
