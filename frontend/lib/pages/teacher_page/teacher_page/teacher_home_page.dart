@@ -18,7 +18,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   List<dynamic> _schedule = [];
 
   // TODO: Move to a config file
-  final String baseUrl = "http://localhost:3001";
+  final String baseUrl = "http://10.0.2.2:3001";
 
   @override
   void initState() {
@@ -39,8 +39,19 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   }
 
   Future<void> _fetchDashboardStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getInt('id');
+    final teacherId = id?.toString();
+
+    if (teacherId == null) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
     try {
-      final response = await http.get(Uri.parse('$baseUrl/teacher/stats'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/teacher/stats/$teacherId'),
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

@@ -2,17 +2,25 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../../config/db");
 
-// Get Teacher Dashboard Stats
-router.get("/stats", async (req, res) => {
+
+router.get("/stats/:id", async (req, res) => {
     try {
+        const teacherId = req.params.id;
      
-        const studentCountQuery = `SELECT COUNT(*) FROM student_groups WHERE teacher_id = ${req.user.id}`;
-        const studentCountResult = await pool.query(studentCountQuery);
+        
+        const studentCountQuery = `
+            SELECT COUNT(DISTINCT sg.student_id) 
+            FROM student_groups sg
+            INNER JOIN teacher_groups tg ON sg.group_id = tg.group_id
+            WHERE tg.teacher_id = $1
+        `;
+        const studentCountResult = await pool.query(studentCountQuery, [teacherId]);
         const totalStudents = parseInt(studentCountResult.rows[0].count, 10);
 
-        const groupCountQuery = `SELECT COUNT(*) FROM teacher_groups WHERE teacher_id = ${req.user.id}`;
-        const groupCountResult = await pool.query(groupCountQuery);
+        const groupCountQuery = `SELECT COUNT(*) FROM teacher_groups WHERE teacher_id = $1`;
+        const groupCountResult = await pool.query(groupCountQuery, [teacherId]);
         const totalGroups = parseInt(groupCountResult.rows[0].count, 10);
+
         const upcomingClasses = [
             {
                 id: 1,
@@ -45,8 +53,8 @@ router.get("/stats", async (req, res) => {
             stats: {
                 totalStudents,
                 activeGroups: totalGroups,
-                pendingAssignments: 12, 
-                averageAttendance: "94%", 
+                pendingAssignments: 0, 
+                averageAttendance: "0%", 
             },
             schedule: upcomingClasses
         });
@@ -56,6 +64,7 @@ router.get("/stats", async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 });
+
 router.get("/allStudent/:id", async (req, res) => {
     try {
         const teacherId = req.params.id;
@@ -78,10 +87,10 @@ router.get("/allStudent/:id", async (req, res) => {
         const studentsResult = await pool.query(studentsQuery, [teacherId]);
         const students = studentsResult.rows;
         
-        // Get count of students
+       
         const totalStudents = students.length;
         
-        // Get distinct groups
+       
         const groupsSet = new Set(students.map(s => s.group_name));
         const totalGroups = groupsSet.size;
 
