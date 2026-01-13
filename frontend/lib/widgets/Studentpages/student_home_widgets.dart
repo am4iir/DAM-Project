@@ -121,7 +121,7 @@ Widget buildServiceCard(
   required IconData icon,
   required String title,
   required bool isPrimary,
-  required VoidCallback onTap,
+
 }) {
   final colorScheme = Theme.of(context).colorScheme;
   final cardColor = isPrimary ? colorScheme.primary : colorScheme.secondary;
@@ -129,7 +129,7 @@ Widget buildServiceCard(
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: onTap,
+    
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(

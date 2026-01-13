@@ -1,11 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/Studentpages/groupandsection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:frontend/widgets/Studentpages/Examgrades.dart';
-import 'package:frontend/widgets/Studentpages/AssessmentPage.dart';
-import 'package:frontend/widgets/Studentpages/ExamsSchedule.dart';
 import 'package:frontend/widgets/Studentpages/student_home_widgets.dart';
 import 'package:frontend/widgets/Studentpages/student_drawer.dart';
 
@@ -308,7 +304,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Quick Access',
+                    'Our Services',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -355,54 +351,28 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     icon: Icons.groups_outlined,
                     title: 'Group & Section',
                     isPrimary: true,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Groupandsection(),
-                        ),
-                      );
-                    },
+                   
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.school_outlined,
                     title: 'Exam Grades',
                     isPrimary: false,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Examgrades()),
-                      );
-                    },
+                  
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.calendar_month_outlined,
                     title: 'Exam Schedule',
                     isPrimary: false,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ExamsSchedule(),
-                        ),
-                      );
-                    },
+                   
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.assessment_outlined,
                     title: 'Assessment',
                     isPrimary: true,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AssessmentPage(),
-                        ),
-                      );
-                    },
+                   
                   ),
                 ],
               ),
