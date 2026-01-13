@@ -15,7 +15,7 @@ router.get("/stats/:id", async (req, res) => {
             SELECT 
                 t.id, 
                 t.subject, 
-                t.teacher,
+               
                 t.time, 
                 t.room,
                 t.type,
@@ -43,10 +43,19 @@ router.get("/stats/:id", async (req, res) => {
             };
         });
 
-        // Mock stats for now
+        const groupQuery = `
+            SELECT g.name 
+            FROM groups g
+            JOIN student_groups sg ON g.id = sg.group_id
+            WHERE sg.student_id = $1
+        `;
+        const groupResult = await pool.query(groupQuery, [studentId]);
+        const groupName = groupResult.rows.length > 0 ? groupResult.rows[0].name : 'N/A';
+
         const stats = {
-            assignments: 12,
-            exams: 5
+            group: groupName,
+            exams: 5,
+            scheduleCount: schedule.length
         };
 
         return res.status(200).json({

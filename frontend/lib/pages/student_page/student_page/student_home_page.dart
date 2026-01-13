@@ -17,10 +17,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
   String? firstLetter;
   String? secondLetter;
   String? email;
-  bool _isLoading = true;
-  Map<String, dynamic> _stats = {'assignments': '0', 'exams': '0'};
-  List<dynamic> _schedule = [];
-  String _todayName = '';
+  Map<String, dynamic> _stats = {'group': 'Loading...', 'exams': '0'};
+
   final String baseUrl = "http://10.0.2.2:3001";
 
   Future<void> _loadData() async {
@@ -50,7 +48,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
     final studentId = prefs.getInt('id')?.toString();
 
     if (studentId == null) {
-      setState(() => _isLoading = false);
       return;
     }
 
@@ -63,19 +60,13 @@ class _StudentHomePageState extends State<StudentHomePage> {
         final data = json.decode(response.body);
         setState(() {
           _stats = {
-            'assignments': data['stats']['assignments'].toString(),
-            'exams': data['stats']['exams'].toString(),
+            'group': (data['stats']['group'] ?? 'N/A').toString(),
+            'exams': (data['stats']['exams'] ?? 0).toString(),
           };
-          _schedule = data['schedule'];
-          _todayName = data['today'];
-          _isLoading = false;
         });
-      } else {
-        setState(() => _isLoading = false);
       }
     } catch (e) {
       print("Error fetching student dashboard: $e");
-      setState(() => _isLoading = false);
     }
   }
 
@@ -176,98 +167,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               ),
             ),
 
-            // Day Overview / Schedule
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _todayName.isNotEmpty
-                            ? "$_todayName's Classes"
-                            : "Today's Schedule",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onBackground,
-                        ),
-                      ),
-                      Text(
-                        "Plan your learning journey",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_schedule.isNotEmpty)
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'See All',
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _isLoading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : _schedule.isEmpty
-                  ? Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceVariant.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: colorScheme.outline.withOpacity(0.1),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.event_available_outlined,
-                            size: 40,
-                            color: colorScheme.onSurfaceVariant.withOpacity(
-                              0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "No classes for today",
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant.withOpacity(
-                                0.6,
-                              ),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Column(
-                      children: _schedule
-                          .map((item) => buildStudentScheduleCard(item))
-                          .toList(),
-                    ),
-            ),
+            const SizedBox(height: 10),
 
             // Stats Cards
             Padding(
@@ -277,9 +177,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   Expanded(
                     child: buildStatCard(
                       context,
-                      icon: Icons.assignment_outlined,
-                      title: 'Assignments',
-                      value: _stats['assignments'],
+                      icon: Icons.groups_outlined,
+                      title: 'Group',
+                      value: _stats['group'] ?? 'N/A',
                       isPrimary: true,
                     ),
                   ),
@@ -289,8 +189,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       context,
                       icon: Icons.event_outlined,
                       title: 'Exams',
-                      value: _stats['exams'],
-                      isPrimary: false,
+                      value: _stats['exams'] ?? 'N/A',
+                              isPrimary: false,
                     ),
                   ),
                 ],
@@ -351,28 +251,24 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     icon: Icons.groups_outlined,
                     title: 'Group & Section',
                     isPrimary: true,
-                   
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.school_outlined,
                     title: 'Exam Grades',
                     isPrimary: false,
-                  
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.calendar_month_outlined,
                     title: 'Exam Schedule',
                     isPrimary: false,
-                   
                   ),
                   buildServiceCard(
                     context,
                     icon: Icons.assessment_outlined,
                     title: 'Assessment',
                     isPrimary: true,
-                   
                   ),
                 ],
               ),
