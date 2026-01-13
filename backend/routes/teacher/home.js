@@ -21,32 +21,44 @@ router.get("/stats/:id", async (req, res) => {
         const groupCountResult = await pool.query(groupCountQuery, [teacherId]);
         const totalGroups = parseInt(groupCountResult.rows[0].count, 10);
 
-        const upcomingClasses = [
-            {
-                id: 1,
-                subject: "Mathematics",
-                group: "Group A",
-                time: "08:30 AM - 10:00 AM",
-                room: "Room 101",
-                color: 0xFF6C63FF 
-            },
-            {
-                id: 2,
-                subject: "Physics",
-                group: "Group B",
-                time: "10:15 AM - 11:45 AM",
-                room: "Lab 2",
-                color: 0xFFFF6584 
-            },
-            {
-                id: 3,
-                subject: "Consultation",
-                group: "Group C",
-                time: "01:00 PM - 02:00 PM",
-                room: "Office",
-                color: 0xFF4CAF50 
+        // Get current day
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const today = days[new Date().getDay()];
+
+        const scheduleQuery = `
+            SELECT 
+                t.id, 
+                t.subject, 
+                g.name as "group", 
+                t.time, 
+                t.room
+            FROM timetable t
+            JOIN groups g ON t.group_id = g.id
+            JOIN teacher_groups tg ON g.id = tg.group_id
+            WHERE tg.teacher_id = $1 AND t.day = $2
+            ORDER BY t.time ASC
+        `;
+        
+        const scheduleResult = await pool.query(scheduleQuery, [teacherId, today]);
+        
+        const upcomingClasses = scheduleResult.rows.map(cls => {
+            // Assign colors based on subject (or default)
+            let color = 0xFF6C63FF; // Default purple/blue
+            const subject = cls.subject.toLowerCase();
+            
+            if (subject.includes('physics')) {
+                color = 0xFFFF6584; // Pinkish
+            } else if (subject.includes('consultation')) {
+                color = 0xFF4CAF50; // Green
+            } else if (subject.includes('math')) {
+                color = 0xFF6C63FF;
             }
-        ];
+
+            return {
+                ...cls,
+                color: color
+            };
+        });
 
         return res.status(200).json({
             message: "Stats fetched successfully",

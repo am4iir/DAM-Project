@@ -12,6 +12,8 @@ const studentRoutes = require("./routes/admin/students.js");
 const moduleRoutes = require("./routes/admin/modules.js");
 const teacherRoutes = require("./routes/teacher/home.js");
 
+const studentHomeRoutes = require("./routes/student/home.js");
+
 const app = express();
 const port = process.env.PORT || 3001;
 const Host = '0.0.0.0';
@@ -31,6 +33,7 @@ app.use("/admin/modules", moduleRoutes);
 app.use("/admin/students", studentRoutes);
 app.use("/admin", acceptRoutes); // Keep generic /admin last
 app.use("/teacher", teacherRoutes);
+app.use("/student", studentHomeRoutes);
 
 // Global Error Handler for JSON responses
 app.use((err, req, res, next) => {

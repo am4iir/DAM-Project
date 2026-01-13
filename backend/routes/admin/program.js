@@ -3,12 +3,18 @@ const router = express.Router();
 const pool = require("../../config/db");
 
 router.post("/save-timetable", async (req, res) => {
-  const { groupId, timetable } = req.body;
+  let { groupId, timetable } = req.body;
 
   if (!groupId || !timetable) {
     return res
       .status(400)
       .json({ error: "Group ID and timetable data are required" });
+  }
+
+  // Ensure groupId is an integer for correct comparison in the conflict check
+  const gId = parseInt(groupId);
+  if (isNaN(gId)) {
+    return res.status(400).json({ error: "Invalid Group ID" });
   }
 
   try {
@@ -24,13 +30,16 @@ router.post("/save-timetable", async (req, res) => {
     `;
 
     for (const entry of timetable) {
-      if (!entry.teacher_id) continue; // Skip entries without teacher
+      if (!entry.teacher_id) continue;
       
+      const teacherId = parseInt(entry.teacher_id);
+      if (isNaN(teacherId)) continue;
+
       const conflict = await pool.query(conflictCheckQuery, [
         entry.day,
         entry.time,
-        entry.teacher_id,
-        groupId
+        teacherId,
+        gId
       ]);
       
       if (conflict.rows.length > 0) {
@@ -43,7 +52,7 @@ router.post("/save-timetable", async (req, res) => {
     }
 
     // No conflicts, proceed with saving
-    await pool.query("DELETE FROM timetable WHERE group_id = $1", [groupId]);
+    await pool.query("DELETE FROM timetable WHERE group_id = $1", [gId]);
 
     const insertQuery = `
       INSERT INTO timetable (group_id, subject, teacher_id, day, time, type, room) 
@@ -51,10 +60,11 @@ router.post("/save-timetable", async (req, res) => {
     `;
 
     for (const entry of timetable) {
+      const teacherId = entry.teacher_id ? parseInt(entry.teacher_id) : null;
       await pool.query(insertQuery, [
-        groupId,
+        gId,
         entry.subject,
-        entry.teacher_id,
+        teacherId,
         entry.day,
         entry.time,
         entry.type,
@@ -65,15 +75,47 @@ router.post("/save-timetable", async (req, res) => {
     await pool.query("COMMIT");
     res.json({ message: "Timetable confirmed and saved successfully!" });
   } catch (err) {
-    await pool.query("ROLLBACK");
+    if (pool.query) await pool.query("ROLLBACK");
     console.error(err);
     res.status(500).json({ error: "Failed to save timetable" });
   }
 });
 
+router.get("/check-conflict", async (req, res) => {
+  const { teacherId, day, time, groupId } = req.query;
+
+  if (!teacherId || !day || !time) {
+    return res.status(400).json({ error: "teacherId, day, and time are required" });
+  }
+
+  try {
+    const conflictQuery = `
+      SELECT t.*, g.name as group_name, u.username as teacher_name
+      FROM timetable t
+      JOIN groups g ON t.group_id = g.id
+      JOIN users u ON t.teacher_id = u.id
+      WHERE t.day = $1 AND t.time = $2 AND t.teacher_id = $3 AND t.group_id != $4
+    `;
+    const gId = groupId ? parseInt(groupId) : -1;
+    const result = await pool.query(conflictQuery, [day, time, parseInt(teacherId), gId]);
+
+    if (result.rows.length > 0) {
+      const info = result.rows[0];
+      return res.status(200).json({
+        conflict: true,
+        message: `${info.teacher_name} is already teaching "${info.subject}" for ${info.group_name} on ${day} at ${time}`
+      });
+    }
+
+    res.json({ conflict: false });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Wait... check conflict failed" });
+  }
+});
+
 router.get("/group/:groupId/teachers", async (req, res) => {
   const { groupId } = req.params;
-  console.log(`Fetching all teachers for selection in group: ${groupId}`);
   try {
     const allTeachersQuery = `
         SELECT id, username, email 
@@ -109,7 +151,6 @@ router.get("/timetable/:groupId", async (req, res) => {
 
 router.get("/timetable/teacher/:teacherId", async (req, res) => {
   const { teacherId } = req.params;
-  console.log(`Fetching timetable for teacher ID: ${teacherId}`);
   try {
     const query = `
       SELECT t.*, g.name as group_name
@@ -118,7 +159,6 @@ router.get("/timetable/teacher/:teacherId", async (req, res) => {
       WHERE t.teacher_id = $1
     `;
     const { rows } = await pool.query(query, [teacherId]);
-    console.log(`Found ${rows.length} classes for teacher ${teacherId}:`, rows);
     res.json({ timetable: rows });
   } catch (err) {
     console.error("Error fetching teacher timetable:", err);
