@@ -146,7 +146,7 @@ Widget buildTeacherScheduleCard(dynamic item) {
               ),
               const SizedBox(height: 4),
               Text(
-                '${item['group']} • ${item['room']}',
+                ' • ${item['room']}',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],

@@ -26,17 +26,11 @@ router.get("/stats/:id", async (req, res) => {
         const today = days[new Date().getDay()];
 
         const scheduleQuery = `
-            SELECT 
-                t.id, 
-                t.subject, 
-                g.name as "group", 
-                t.time, 
-                t.room
-            FROM timetable t
-            JOIN groups g ON t.group_id = g.id
-            JOIN teacher_groups tg ON g.id = tg.group_id
-            WHERE tg.teacher_id = $1 AND t.day = $2
-            ORDER BY t.time ASC
+            SELECT id, subject, "time", room
+            FROM timetable
+            WHERE teacher_id = $1
+            AND day = $2
+            ORDER BY "time";
         `;
         
         const scheduleResult = await pool.query(scheduleQuery, [teacherId, today]);

@@ -17,7 +17,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   Map<String, dynamic> _stats = {};
   List<dynamic> _schedule = [];
 
-
   final String baseUrl = "http://10.0.2.2:3001";
 
   @override
