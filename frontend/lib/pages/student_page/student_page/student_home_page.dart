@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/Studentpages/groupandsection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,8 +21,18 @@ class _StudentHomePageState extends State<StudentHomePage> {
   String? firstLetter;
   String? secondLetter;
   String? email;
+  bool _isLoading = true;
+  Map<String, dynamic> _stats = {'assignments': '0', 'exams': '0'};
+  List<dynamic> _schedule = [];
+  String _todayName = '';
+  final String baseUrl = "http://10.0.2.2:3001";
 
-  void getUserName() async {
+  Future<void> _loadData() async {
+    await _getUserInfo();
+    await _fetchDashboard();
+  }
+
+  Future<void> _getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
@@ -37,10 +49,44 @@ class _StudentHomePageState extends State<StudentHomePage> {
     });
   }
 
+  Future<void> _fetchDashboard() async {
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getInt('id')?.toString();
+
+    if (studentId == null) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/student/stats/$studentId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _stats = {
+            'assignments': data['stats']['assignments'].toString(),
+            'exams': data['stats']['exams'].toString(),
+          };
+          _schedule = data['schedule'];
+          _todayName = data['today'];
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print("Error fetching student dashboard: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getUserName();
+    _loadData();
   }
 
   @override
@@ -134,6 +180,99 @@ class _StudentHomePageState extends State<StudentHomePage> {
               ),
             ),
 
+            // Day Overview / Schedule
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _todayName.isNotEmpty
+                            ? "$_todayName's Classes"
+                            : "Today's Schedule",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onBackground,
+                        ),
+                      ),
+                      Text(
+                        "Plan your learning journey",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_schedule.isNotEmpty)
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'See All',
+                        style: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _isLoading
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : _schedule.isEmpty
+                  ? Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceVariant.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: colorScheme.outline.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.event_available_outlined,
+                            size: 40,
+                            color: colorScheme.onSurfaceVariant.withOpacity(
+                              0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "No classes for today",
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant.withOpacity(
+                                0.6,
+                              ),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: _schedule
+                          .map((item) => buildStudentScheduleCard(item))
+                          .toList(),
+                    ),
+            ),
+
             // Stats Cards
             Padding(
               padding: const EdgeInsets.all(20),
@@ -144,7 +283,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       context,
                       icon: Icons.assignment_outlined,
                       title: 'Assignments',
-                      value: '12',
+                      value: _stats['assignments'],
                       isPrimary: true,
                     ),
                   ),
@@ -154,7 +293,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       context,
                       icon: Icons.event_outlined,
                       title: 'Exams',
-                      value: '5',
+                      value: _stats['exams'],
                       isPrimary: false,
                     ),
                   ),

@@ -221,7 +221,7 @@ class _AdminProgramPageState extends State<AdminProgramPage>
     String selectedTime = _slots[0];
     String selectedDay = _days[_selectedDayIndex];
     String selectedType = 'Lecture';
-    final roomController = TextEditingController(text: 'Room 101');
+    final roomController = TextEditingController(text: 'Room 1');
 
     showDialog(
       context: context,
@@ -293,21 +293,59 @@ class _AdminProgramPageState extends State<AdminProgramPage>
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final isConflict = _timetable.any(
+              onPressed: () async {
+                // 1. Local check (already in this group's list)
+                final isLocalConflict = _timetable.any(
                   (e) => e['day'] == selectedDay && e['time'] == selectedTime,
                 );
 
-                if (isConflict) {
+                if (isLocalConflict) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Conflict: A class is already scheduled on $selectedDay at $selectedTime',
+                        'Conflict: This group already has a class on $selectedDay at $selectedTime',
                       ),
                       backgroundColor: Colors.red,
                     ),
                   );
                   return;
+                }
+
+                // 2. Database check (teacher availability)
+                final tId = selectedModule['teacher_id'];
+                final gId = widget.group?['id'];
+
+                if (tId != null) {
+                  try {
+                    final res = await http.get(
+                      Uri.parse(
+                        'http://10.0.2.2:3001/admin/programs/check-conflict?teacherId=$tId&day=$selectedDay&time=$selectedTime&groupId=${gId ?? -1}',
+                      ),
+                    );
+
+                    if (res.statusCode == 200) {
+                      final data = json.decode(res.body);
+                      if (data['conflict'] == true) {
+                        if (!mounted) return;
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Teacher Conflict'),
+                            content: Text(data['message']),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('I will choose another time'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                  } catch (e) {
+                    debugPrint('Conflict check failed: $e');
+                  }
                 }
 
                 setState(() {
@@ -510,29 +548,67 @@ class _AdminProgramPageState extends State<AdminProgramPage>
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemBuilder: (context, index) {
               bool isSelected = _selectedDayIndex == index;
+              final dayName = _days[index];
+              final classCount = _timetable
+                  .where((e) => e['day'] == dayName)
+                  .length;
+
               return GestureDetector(
                 onTap: () => setState(() => _selectedDayIndex = index),
                 child: Container(
                   width: 90,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.blueAccent : Colors.grey[100],
+                    color: isSelected ? Colors.blueAccent : Colors.white,
                     borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      if (!isSelected)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
                     border: Border.all(
-                      color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.transparent,
+                      color: isSelected ? Colors.blueAccent : Colors.grey[200]!,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      _days[index],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        dayName.substring(0, 3).toUpperCase(),
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                      if (classCount > 0)
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.white.withOpacity(0.2)
+                                : Colors.blueAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$classCount ${classCount == 1 ? "class" : "classes"}',
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.blueAccent,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               );

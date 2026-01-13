@@ -17,7 +17,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   Map<String, dynamic> _stats = {};
   List<dynamic> _schedule = [];
 
-  // TODO: Move to a config file
+
   final String baseUrl = "http://10.0.2.2:3001";
 
   @override
@@ -72,7 +72,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine greeting based on time
     final hour = DateTime.now().hour;
     String greeting = 'Good Morning';
     if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
@@ -91,7 +90,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- Header ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -136,18 +134,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                                 Icons.notifications_outlined,
                                 size: 28,
                               ),
-                              Positioned(
-                                right: 2,
-                                top: 2,
-                                child: Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -155,7 +141,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                     ),
                     const SizedBox(height: 30),
 
-                    // --- Stats Cards ---
                     SizedBox(
                       height: 140,
                       child: ListView(
@@ -187,7 +172,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                     ),
                     const SizedBox(height: 30),
 
-                    // --- Quick Actions ---
                     const Text(
                       'Quick Actions',
                       style: TextStyle(
@@ -224,7 +208,6 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                     ),
                     const SizedBox(height: 30),
 
-                    // --- Today's Schedule ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
